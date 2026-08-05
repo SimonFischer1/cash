@@ -1,36 +1,39 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Surf Club POS</title>
 
-https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/md.min.js
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min5.1/jspdf.umd.min.js"></script>
 
 <style>
+
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Inter,Arial,sans-serif;
+font-family:Arial,sans-serif;
 }
 
 body{
-display:flex;
+background:#f2f4f7;
 height:100vh;
-background:#f4f6f8;
+display:flex;
+overflow:hidden;
 }
 
 .left{
-width:65%;
+width:70%;
 padding:20px;
-overflow:auto;
+overflow-y:auto;
 }
 
 .right{
-width:35%;
+width:30%;
 background:white;
 border-left:1px solid #ddd;
 display:flex;
@@ -38,193 +41,332 @@ flex-direction:column;
 }
 
 .header{
-background:#0096ff;
+background:#00A3FF;
 color:white;
 padding:20px;
-font-size:24px;
-font-weight:bold;
 border-radius:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
 margin-bottom:20px;
 }
 
-.category{
-margin-bottom:25px;
+.company-name{
+font-size:28px;
+font-weight:bold;
 }
 
-.category h2{
-margin-bottom:10px;
+.employee-area{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.employee-area input{
+padding:10px;
+border:none;
+border-radius:10px;
+width:180px;
+}
+
+.tabs{
+display:flex;
+gap:10px;
+margin-bottom:20px;
+flex-wrap:wrap;
+}
+
+.tabs button{
+background:white;
+padding:15px 25px;
+font-weight:bold;
+border:none;
+border-radius:12px;
+cursor:pointer;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tabs button:hover{
+background:#e7f5ff;
 }
 
 .products{
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-gap:10px;
+grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+gap:15px;
 }
 
 .product{
 background:white;
-padding:15px;
+padding:20px;
 border-radius:15px;
 cursor:pointer;
-box-shadow:0 2px 8px rgba(0,0,0,0.08);
 text-align:center;
+box-shadow:0 2px 10px rgba(0,0,0,0.08);
 transition:0.2s;
 }
 
 .product:hover{
-background:#e9f6ff;
+transform:translateY(-3px);
+background:#f0f9ff;
+}
+
+.product h3{
+margin-bottom:10px;
+}
+
+.product-price{
+font-size:18px;
+font-weight:bold;
+color:#00A3FF;
 }
 
 .cart{
-padding:20px;
 flex:1;
-overflow:auto;
+padding:20px;
+overflow-y:auto;
 }
 
-.line{
+.cart-title{
+font-size:24px;
+font-weight:bold;
+margin-bottom:15px;
+}
+
+.cart-item{
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:10px;
-margin-bottom:8px;
 background:#fafafa;
+padding:10px;
 border-radius:10px;
-border:1px solid #eee;
+margin-bottom:10px;
+border:1px solid #ececec;
 }
 
-.delete{
-width:25px;
-height:25px;
+.cart-left{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.delete-btn{
 background:red;
-border:none;
 color:white;
+width:28px;
+height:28px;
+border:none;
 border-radius:50%;
+font-weight:bold;
 cursor:pointer;
-margin-right:10px;
 }
 
 .total{
 padding:20px;
-font-size:24px;
-font-weight:bold;
 border-top:1px solid #ddd;
+font-size:28px;
+font-weight:bold;
 }
 
-.payments{
+.payment-area{
 padding:20px;
 }
 
-button{
-padding:10px;
+.payment-btn{
+padding:12px;
 border:none;
 border-radius:10px;
 cursor:pointer;
+font-weight:bold;
+margin-right:5px;
+margin-bottom:10px;
 }
 
-.card{
+.card-btn{
 background:#34c759;
 color:white;
 }
 
-.cash{
+.cash-btn{
 background:#ff9500;
 color:white;
 }
 
-.print{
-background:#0096ff;
+.print-btn{
+background:#00A3FF;
 color:white;
 width:100%;
+margin-top:10px;
 }
 
-.storno{
+.cancel-btn{
 background:#d32f2f;
 color:white;
 width:100%;
 margin-top:10px;
 }
 
-.free{
-background:#6c63ff;
+.free-btn{
+background:#6c5ce7;
 color:white;
-margin-top:10px;
 width:100%;
+margin-top:10px;
 }
 
-.cashButtons{
+.cash-options{
 display:none;
 margin-top:10px;
 }
 
-.cashButtons button{
-background:#eee;
+.cash-options button{
+padding:10px;
 margin:3px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+background:#eee;
 }
+
+.change-box{
+margin-top:10px;
+font-size:16px;
+font-weight:bold;
+}
+
+.selected-payment{
+margin-top:10px;
+font-size:16px;
+font-weight:bold;
+color:#00A3FF;
+}
+
 </style>
+
 </head>
+
 <body>
 
 <div class="left">
 
 <div class="header">
+
+<div class="company-name">
 SURF CLUB POS
 </div>
 
-<p>Mitarbeiter:</p>
-<input id="employee" value="Simon" style="padding:10px;width:250px;margin-bottom:20px;">
+<div class="employee-area">
 
-<div id="products"></div>
+<label>Mitarbeiter</label>
+
+<input
+id="employee"
+value="Simon">
+
+</div>
+
+</div>
+
+<div class="tabs">
+
+<button onclick="showCategory('Ausrüstung')">
+Ausrüstung
+</button>
+
+<button onclick="showCategory('Kleidung')">
+Kleidung
+</button>
+
+<button onclick="showCategory('Getränke')">
+Getränke
+</button>
+
+<button onclick="showCategory('Essen')">
+Essen
+</button>
+
+</div>
+
+<div
+class="products"
+id="products">
+</div>
 
 </div>
 
 <div class="right">
 
-<div class="cart" id="cart"></div>
+<div class="cart">
 
-<div class="total">
-Gesamt: <span id="total">0.00 €</span>
+<div class="cart-title">
+Bon
 </div>
 
-<div class="payments">
+<div id="cartItems">
+</div>
 
-<button class="card" onclick="setPayment('Kartenzahlung')">
+</div>
+
+<div class="total">
+Gesamt:
+<span id="total">
+0.00 €
+</span>
+</div>
+
+<div class="payment-area">
+
+<button
+class="payment-btn card-btn"
+onclick="setPayment('Kartenzahlung')">
 Kartenzahlung
 </button>
 
-<button class="cash" onclick="showCash()">
+<button
+class="payment-btn cash-btn"
+onclick="activateCash()">
 Barzahlung
 </button>
 
-<div class="cashButtons" id="cashButtons">
-<button onclick="cashPay(5)">5€</button>
-<button onclick="cashPay(10)">10€</button>
-<button onclick="cashPay(20)">20€</button>
-<button onclick="cashPay(50)">50€</button>
-<button onclick="cashPay(100)">100€</button>
+<div
+class="selected-payment"
+id="paymentDisplay">
+Keine Zahlungsart gewählt
 </div>
 
-<br><br>
+<div
+class="cash-options"
+id="cashOptions">
 
-<button class="free" onclick="freeItem()">
+<button onclick="cashPay(5)">5 €</button>
+<button onclick="cashPay(10)">10 €</button>
+<button onclick="cashPay(20)">20 €</button>
+<button onclick="cashPay(50)">50 €</button>
+<button onclick="cashPay(100)">100 €</button>
+<button onclick="cashPay(200)">200 €</button>
+
+</div>
+
+<div
+class="change-box"
+id="changeBox">
+</div>
+
+<button
+class="free-btn"
+onclick="addCustomItem()">
 Freier Artikel
 </button>
 
-<br><br>
-
-<div id="change"></div>
-
-<br>
-
-<button class="print" onclick="printReceipt()">
-Bon Drucken
+<button
+class="print-btn"
+onclick="printReceipt()">
+BON DRUCKEN
 </button>
 
-<button class="print" onclick="downloadPDF()">
-PDF Speichern
-</button>
-
-<button class="storno" onclick="cancelReceipt()">
-Bon Stornieren
+<button
+class="cancel-btn"
+onclick="cancelReceipt()">
+BON STORNIEREN
 </button>
 
 </div>
@@ -233,292 +375,745 @@ Bon Stornieren
 
 <script>
 
-const data = {
+const products = {
 
-"Klamotten":[
-{name:"T-Shirt",price:25,tax:19},
-{name:"Pulli",price:59,tax:19},
-{name:"Hose",price:49,tax:19},
-{name:"Short",price:35,tax:19}
+Ausrüstung:[
+
+{
+name:"Wakeboard",
+price:350,
+tax:19
+},
+
+{
+name:"Weste",
+price:39,
+tax:19
+},
+
+{
+name:"Helm",
+price:45,
+tax:19
+},
+
+{
+name:"Leash",
+price:20,
+tax:19
+},
+
+{
+name:"Schuhe",
+price:35,
+tax:19
+},
+
+{
+name:"1 Stunde Anlage",
+price:25,
+tax:19
+},
+
+{
+name:"2 Stunden Anlage",
+price:45,
+tax:19
+},
+
+{
+name:"3 Stunden Anlage",
+price:60,
+tax:19
+},
+
+{
+name:"4 Stunden Anlage",
+price:75,
+tax:19
+},
+
+{
+name:"5 Stunden Anlage",
+price:90,
+tax:19
+},
+
+{
+name:"6 Stunden Anlage",
+price:100,
+tax:19
+}
+
 ],
 
-"Ausrüstung":[
-{name:"Wakeboard",price:350,tax:19},
-{name:"Leash",price:20,tax:19},
-{name:"Weste",price:39,tax:19},
-{name:"Helm",price:45,tax:19},
-{name:"1 Stunde Bahn",price:25,tax:19},
-{name:"2 Stunden Bahn",price:45,tax:19},
-{name:"3 Stunden Bahn",price:60,tax:19},
-{name:"4 Stunden Bahn",price:75,tax:19},
-{name:"5 Stunden Bahn",price:90,tax:19},
-{name:"6 Stunden Bahn",price:100,tax:19}
+Kleidung:[
+
+{
+name:"T-Shirt",
+price:25,
+tax:19
+},
+
+{
+name:"Pulli",
+price:59,
+tax:19
+},
+
+{
+name:"Hose",
+price:49,
+tax:19
+},
+
+{
+name:"Poncho",
+price:39,
+tax:19
+},
+
+{
+name:"Cap",
+price:25,
+tax:19
+},
+
+{
+name:"Mütze",
+price:20,
+tax:19
+}
+
 ],
 
-"Getränke":[
-{name:"Cola",price:3.5,tax:7},
-{name:"Fanta",price:3.5,tax:7},
-{name:"Sprite",price:3.5,tax:7},
-{name:"Kaffee",price:2.5,tax:7},
-{name:"Latte Macchiato",price:4,tax:7},
-{name:"Espresso",price:2,tax:7}
+Getränke:[
+
+{
+name:"Cola",
+price:3.50,
+tax:7
+},
+
+{
+name:"Fanta",
+price:3.50,
+tax:7
+},
+
+{
+name:"Sprite",
+price:3.50,
+tax:7
+},
+
+{
+name:"Kaffee",
+price:2.50,
+tax:7
+},
+
+{
+name:"Espresso",
+price:2.00,
+tax:7
+},
+
+{
+name:"Latte Macchiato",
+price:4.00,
+tax:7
+}
+
 ],
 
-"Essen":[
-{name:"Breze",price:2,tax:7},
-{name:"Käsebrötchen",price:4,tax:7},
-{name:"Schinkenbrötchen",price:4.5,tax:7},
-{name:"Salamibrötchen",price:4.5,tax:7},
-{name:"Vegetarisch",price:4,tax:7},
-{name:"Vegan",price:4,tax:7}
+Essen:[
+
+{
+name:"Breze",
+price:2.50,
+tax:7
+},
+
+{
+name:"Brötchen Käse",
+price:4.50,
+tax:7
+},
+
+{
+name:"Brötchen Schinken",
+price:4.90,
+tax:7
+},
+
+{
+name:"Brötchen Salami",
+price:4.90,
+tax:7
+},
+
+{
+name:"Brötchen Vegetarisch",
+price:4.50,
+tax:7
+},
+
+{
+name:"Brötchen Vegan",
+price:4.50,
+tax:7
+}
+
 ]
 
 };
 
-let cart=[];
-let payment="";
+let cart = [];
+let paymentType = "";
+let amountReceived = 0;
 
-const productsDiv=document.getElementById("products");
+showCategory("Ausrüstung");
 
-Object.keys(data).forEach(category=>{
+function showCategory(category){
 
-let html=`
-<div class="category">
-<h2>${category}</h2>
-<div class="products">
-`;
+const container =
+document.getElementById("products");
 
-data[category].forEach(product=>{
+container.innerHTML = "";
 
-html+=`
-<div class="product" onclick='addProduct(${JSON.stringify(product)})'>
-<b>${product.name}</b><br>
+products[category].forEach(product=>{
+
+container.innerHTML += `
+
+<div
+class="product"
+onclick="addProduct('${product.name}','${category}')">
+
+<h3>${product.name}</h3>
+
+<div class="product-price">
 ${product.price.toFixed(2)} €
 </div>
+
+</div>
+
 `;
 
 });
 
-html+=`</div></div>`;
+}
 
-productsDiv.innerHTML+=html;
+function addProduct(name,category){
+
+const product =
+products[category].find(
+p=>p.name===name
+);
+
+let existing =
+cart.find(
+item=>item.name===name
+);
+
+if(existing){
+
+existing.qty++;
+
+}else{
+
+cart.push({
+
+name:product.name,
+price:product.price,
+tax:product.tax,
+qty:1
 
 });
 
-function addProduct(product){
-
-let existing=cart.find(x=>x.name===product.name);
-
-if(existing){
-existing.qty++;
-}else{
-cart.push({...product,qty:1});
 }
 
 renderCart();
+
 }
 
 function removeProduct(name){
 
-let item=cart.find(x=>x.name===name);
+let item =
+cart.find(
+x=>x.name===name
+);
+
+if(!item) return;
 
 item.qty--;
 
-if(item.qty<=0){
-cart=cart.filter(x=>x.name!==name);
+if(item.qty <= 0){
+
+cart =
+cart.filter(
+x=>x.name!==name
+);
+
 }
 
 renderCart();
+
 }
 
 function renderCart(){
 
-let html="";
-let total=0;
+let html = "";
+
+let total = 0;
+
+let tax7 = 0;
+let tax19 = 0;
 
 cart.forEach(item=>{
 
-let value=item.price*item.qty;
+const rowTotal =
+item.price * item.qty;
 
-total+=value;
+total += rowTotal;
 
-html+=`
-<div class="line">
+if(item.tax === 7){
 
-<div style="display:flex;align-items:center;">
-<button class="delete"
+tax7 +=
+rowTotal -
+(rowTotal / 1.07);
+
+}
+
+if(item.tax === 19){
+
+tax19 +=
+rowTotal -
+(rowTotal / 1.19);
+
+}
+
+html += `
+
+<div class="cart-item">
+
+<div class="cart-left">
+
+<button
+class="delete-btn"
 onclick="removeProduct('${item.name}')">
+
 X
+
 </button>
 
-${item.qty}x ${item.name}
+<div>
+
+<strong>
+${item.qty}x
+</strong>
+
+${item.name}
+
+<br>
+
+<small>
+MwSt.
+${item.tax}%
+</small>
+
+</div>
+
 </div>
 
 <div>
-${item.tax}% | ${value.toFixed(2)}€
+
+${rowTotal.toFixed(2)} €
+
 </div>
 
 </div>
+
 `;
 
 });
 
-document.getElementById("cart").innerHTML=html;
-document.getElementById("total").innerText=total.toFixed(2)+" €";
+html += `
+
+<hr style="margin-top:10px;">
+
+<div style="margin-top:10px;">
+MwSt. 7%:
+${tax7.toFixed(2)} €
+</div>
+
+<div>
+MwSt. 19%:
+${tax19.toFixed(2)} €
+</div>
+
+`;
+
+document.getElementById(
+"cartItems"
+).innerHTML = html;
+
+document.getElementById(
+"total"
+).innerText =
+total.toFixed(2) + " €";
 
 }
 
-function freeItem(){
+function addCustomItem(){
 
-let name=prompt("Artikelname");
+const name =
+prompt("Artikelname");
 
 if(!name) return;
 
-let price=parseFloat(prompt("Preis"));
+const price =
+parseFloat(
+prompt("Preis in Euro")
+);
 
-if(isNaN(price)) return;
+if(isNaN(price))
+return;
 
-let tax=parseInt(prompt("Steuer (7 oder 19)"));
+const tax =
+parseInt(
+prompt("Steuersatz (7 oder 19)")
+);
 
 cart.push({
+
 name:name,
 price:price,
 tax:tax,
 qty:1
+
 });
 
 renderCart();
 
 }
 
-function showCash(){
-payment="Barzahlung";
-document.getElementById("cashButtons").style.display="block";
+function setPayment(type){
+
+paymentType = type;
+
+document.getElementById(
+"paymentDisplay"
+).innerText =
+"Zahlungsart: " + type;
+
 }
 
-function setPayment(type){
-payment=type;
+function activateCash(){
+
+setPayment(
+"Barzahlung"
+);
+
+document.getElementById(
+"cashOptions"
+).style.display =
+"block";
+
 }
 
 function cashPay(amount){
 
-let total=parseFloat(
+amountReceived = amount;
+
+const total =
+parseFloat(
 document.getElementById("total")
 .innerText.replace(" €","")
 );
 
-let diff=amount-total;
+const change =
+amount - total;
 
-document.getElementById("change").innerHTML=
+document.getElementById(
+"changeBox"
+).innerHTML =
+
 `
-Erhalten: ${amount.toFixed(2)} €<br>
-Rückgeld: ${diff.toFixed(2)} €
+Erhalten:
+${amount.toFixed(2)} €
+<br>
+
+Rückgeld:
+${change.toFixed(2)} €
 `;
 
 }
 
 function cancelReceipt(){
 
-if(confirm("Bon wirklich stornieren?")){
+if(
+confirm(
+"Bon wirklich stornieren?"
+)
+){
 
-cart=[];
-payment="";
+cart = [];
+
+paymentType = "";
+
+amountReceived = 0;
+
+document.getElementById(
+"changeBox"
+).innerHTML = "";
+
+document.getElementById(
+"paymentDisplay"
+).innerText =
+"Keine Zahlungsart gewählt";
+
 renderCart();
 
-document.getElementById("change").innerHTML="";
-
 }
-
-}
-
-function downloadPDF(){
-
-const { jsPDF } = window.jspdf;
-
-const doc=new jsPDF();
-
-doc.text("SURF CLUB",20,20);
-
-let y=40;
-
-cart.forEach(item=>{
-
-doc.text(
-`${item.qty}x ${item.name} - ${(item.qty*item.price).toFixed(2)} €`,
-20,
-y
-);
-
-y+=10;
-
-});
-
-doc.text(
-"Gesamt: "+
-document.getElementById("total").innerText,
-20,
-y+20
-);
-
-doc.save("bon.pdf");
 
 }
 
 function printReceipt(){
 
-let qrText=JSON.stringify(cart);
+const employee =
+document.getElementById(
+"employee"
+).value;
 
-let win=window.open();
+const total =
+document.getElementById(
+"total"
+).innerText;
 
-let rows="";
+let tax7 = 0;
+let tax19 = 0;
+
+let rows = "";
 
 cart.forEach(item=>{
 
-rows+=`
+const rowTotal =
+item.price * item.qty;
+
+if(item.tax === 7){
+
+tax7 +=
+rowTotal -
+(rowTotal / 1.07);
+
+}
+
+if(item.tax === 19){
+
+tax19 +=
+rowTotal -
+(rowTotal / 1.19);
+
+}
+
+rows += `
+
 <tr>
-<td>${item.qty}</td>
-<td>${item.name}</td>
-<td>${item.tax}%</td>
-<td>${(item.qty*item.price).toFixed(2)} €</td>
+
+<td>
+${item.qty}
+</td>
+
+<td>
+${item.name}
+</td>
+
+<td>
+${item.tax}%
+</td>
+
+<td>
+${rowTotal.toFixed(2)} €
+</td>
+
 </tr>
+
 `;
 
 });
 
-win.document.write(`
+const totalValue =
+parseFloat(
+total.replace(" €","")
+);
+
+const change =
+amountReceived - totalValue;
+
+const printWindow =
+window.open(
+"",
+"_blank"
+);
+
+printWindow.document.write(`
+
 <html>
+
+<head>
+
+<title>
+Surf Club Bon
+</title>
+
+<style>
+
+body{
+font-family:Arial;
+padding:20px;
+}
+
+h1{
+text-align:center;
+margin-bottom:10px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+th,td{
+border:1px solid #000;
+padding:6px;
+text-align:left;
+}
+
+.summary{
+margin-top:15px;
+}
+
+.footer{
+margin-top:20px;
+text-align:center;
+}
+
+</style>
+
+</head>
+
 <body>
 
-<h2>SURF CLUB</h2>
+<h1>
+SURF CLUB
+</h1>
 
 <p>
-${new Date().toLocaleString()}<br>
+
+Datum:
+${new Date().toLocaleDateString("de-DE")}
+
+<br>
+
+Uhrzeit:
+${new Date().toLocaleTimeString("de-DE")}
+
+<br>
+
 Mitarbeiter:
-${document.getElementById("employee").value}
+${employee}
+
 </p>
 
-<table border="1" width="100%">
+<table>
+
 <tr>
+
 <th>Menge</th>
+
 <th>Produkt</th>
+
 <th>MwSt</th>
+
 <th>Preis</th>
+
 </tr>
 
 ${rows}
 
 </table>
 
-<h3>
+<div class="summary">
+
+<h2>
 Gesamt:
-${document.getElementById("total").innerText}
-</h3>
+${total}
+</h2>
 
-<p>Zahlungsart: ${payment}</p>
+<p>
+Zahlungsart:
+${paymentType}
+</p>
 
-<canvas id="qr"></canvas>
+<p>
+Erhalten:
+${amountReceived.toFixed(2)} €
+</p>
 
-https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js
+<p>
+Rückgeld:
+${change.toFixed(2)} €
+</p>
+
+<p>
+MwSt 7%:
+${tax7.toFixed(2)} €
+</p>
+
+<p>
+MwSt 19%:
+${tax19.toFixed(2)} €
+</p>
+
+</div>
+
+<div class="footer">
+
+Vielen Dank für Ihren Besuch
+
+<br><br>
+
+<canvas id="qrcode"></canvas>
+
+</div>
+
+https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js\/script>
+
+<script>
+
+QRCode.toCanvas(
+document.getElementById('qrcode'),
+'Surf Club Bon | ${new Date().toLocaleString("de-DE")} | ${employee}'
+);
+
+window.print();
+
+<\/script>
 
 </body>
+
+</html>
+
+`);
+
+printWindow.document.close();
+
+}
+
+</script>
+
+</body>
+
 </html>
