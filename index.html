@@ -1163,7 +1163,8 @@ ${tax19.toFixed(2)} €
 
 <div class="footer">
 
-Vielen Dank für Ihren Besuch
+Vielen Dank für Ihren Besuch!
+Ihr Surf Club TEAM!
 
 <br><br>
 
@@ -1176,13 +1177,14 @@ https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js\/script>
 <script>
 
 QRCode.toCanvas(
-document.getElementById('qrcode'),
-'Surf Club Bon | ${new Date().toLocaleString("de-DE")} | ${employee}'
+document.getElementById("qrcode"),
+"Surf Club Bon | ${new Date().toLocaleString('de-DE')} | ${employee}"
 );
 
 window.print();
 
 <\/script>
+
 
 </body>
 
