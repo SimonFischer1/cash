@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surf POS</title>
+
+https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js
+https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Inter,Arial,sans-serif;
+}
+
+body{
+display:flex;
+height:100vh;
+background:#f4f6f8;
+}
+
+.left{
+width:65%;
+padding:20px;
+overflow:auto;
+}
+
+.right{
+width:35%;
+background:white;
+border-left:1px solid #ddd;
+display:flex;
+flex-direction:column;
+}
+
+.header{
+background:#0096ff;
+color:white;
+padding:20px;
+font-size:24px;
+font-weight:bold;
+border-radius:15px;
+margin-bottom:20px;
+}
+
+.category{
+margin-bottom:25px;
+}
+
+.category h2{
+margin-bottom:10px;
+}
+
+.products{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+gap:10px;
+}
+
+.product{
+background:white;
+padding:15px;
+border-radius:15px;
+cursor:pointer;
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+text-align:center;
+transition:0.2s;
+}
+
+.product:hover{
+background:#e9f6ff;
+}
+
+.cart{
+padding:20px;
+flex:1;
+overflow:auto;
+}
+
+.line{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px;
+margin-bottom:8px;
+background:#fafafa;
+border-radius:10px;
+border:1px solid #eee;
+}
+
+.delete{
+width:25px;
+height:25px;
+background:red;
+border:none;
+color:white;
+border-radius:50%;
+cursor:pointer;
+margin-right:10px;
+}
+
+.total{
+padding:20px;
+font-size:24px;
+font-weight:bold;
+border-top:1px solid #ddd;
+}
+
+.payments{
+padding:20px;
+}
+
+button{
+padding:10px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+
+.card{
+background:#34c759;
+color:white;
+}
+
+.cash{
+background:#ff9500;
+color:white;
+}
+
+.print{
+background:#0096ff;
+color:white;
+width:100%;
+}
+
+.storno{
+background:#d32f2f;
+color:white;
+width:100%;
+margin-top:10px;
+}
+
+.free{
+background:#6c63ff;
+color:white;
+margin-top:10px;
+width:100%;
+}
+
+.cashButtons{
+display:none;
+margin-top:10px;
+}
+
+.cashButtons button{
+background:#eee;
+margin:3px;
+}
+</style>
+</head>
+<body>
+
+<div class="left">
+
+<div class="header">
+SURF CLUB POS
+</div>
+
+<p>Mitarbeiter:</p>
+<input id="employee" value="Simon" style="padding:10px;width:250px;margin-bottom:20px;">
+
+<div id="products"></div>
+
+</div>
+
+<div class="right">
+
+<div class="cart" id="cart"></div>
+
+<div class="total">
+Gesamt: <span id="total">0.00 €</span>
+</div>
+
+<div class="payments">
+
+<button class="card" onclick="setPayment('Kartenzahlung')">
+Kartenzahlung
+</button>
+
+<button class="cash" onclick="showCash()">
+Barzahlung
+</button>
+
+<div class="cashButtons" id="cashButtons">
+<button onclick="cashPay(5)">5€</button>
+<button onclick="cashPay(10)">10€</button>
+<button onclick="cashPay(20)">20€</button>
+<button onclick="cashPay(50)">50€</button>
+<button onclick="cashPay(100)">100€</button>
+</div>
+
+<br><br>
+
+<button class="free" onclick="freeItem()">
+Freier Artikel
+</button>
+
+<br><br>
+
+<div id="change"></div>
+
+<br>
+
+<button class="print" onclick="printReceipt()">
+Bon Drucken
+</button>
+
+<button class="print" onclick="downloadPDF()">
+PDF Speichern
+</button>
+
+<button class="storno" onclick="cancelReceipt()">
+Bon Stornieren
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const data = {
+
+"Klamotten":[
+{name:"T-Shirt",price:25,tax:19},
+{name:"Pulli",price:59,tax:19},
+{name:"Hose",price:49,tax:19},
+{name:"Short",price:35,tax:19}
+],
+
+"Ausrüstung":[
+{name:"Wakeboard",price:350,tax:19},
+{name:"Leash",price:20,tax:19},
+{name:"Weste",price:39,tax:19},
+{name:"Helm",price:45,tax:19},
+{name:"1 Stunde Bahn",price:25,tax:19},
+{name:"2 Stunden Bahn",price:45,tax:19},
+{name:"3 Stunden Bahn",price:60,tax:19},
+{name:"4 Stunden Bahn",price:75,tax:19},
+{name:"5 Stunden Bahn",price:90,tax:19},
+{name:"6 Stunden Bahn",price:100,tax:19}
+],
+
+"Getränke":[
+{name:"Cola",price:3.5,tax:7},
+{name:"Fanta",price:3.5,tax:7},
+{name:"Sprite",price:3.5,tax:7},
+{name:"Kaffee",price:2.5,tax:7},
+{name:"Latte Macchiato",price:4,tax:7},
+{name:"Espresso",price:2,tax:7}
+],
+
+"Essen":[
+{name:"Breze",price:2,tax:7},
+{name:"Käsebrötchen",price:4,tax:7},
+{name:"Schinkenbrötchen",price:4.5,tax:7},
+{name:"Salamibrötchen",price:4.5,tax:7},
+{name:"Vegetarisch",price:4,tax:7},
+{name:"Vegan",price:4,tax:7}
+]
+
+};
+
+let cart=[];
+let payment="";
+
+const productsDiv=document.getElementById("products");
+
+Object.keys(data).forEach(category=>{
+
+let html=`
+<div class="category">
+<h2>${category}</h2>
+<div class="products">
+`;
+
+data[category].forEach(product=>{
+
+html+=`
+<div class="product" onclick='addProduct(${JSON.stringify(product)})'>
+<b>${product.name}</b><br>
+${product.price.toFixed(2)} €
+</div>
+`;
+
+});
+
+html+=`</div></div>`;
+
+productsDiv.innerHTML+=html;
+
+});
+
+function addProduct(product){
+
+let existing=cart.find(x=>x.name===product.name);
+
+if(existing){
+existing.qty++;
+}else{
+cart.push({...product,qty:1});
+}
+
+renderCart();
+}
+
+function removeProduct(name){
+
+let item=cart.find(x=>x.name===name);
+
+item.qty--;
+
+if(item.qty<=0){
+cart=cart.filter(x=>x.name!==name);
+}
+
+renderCart();
+}
+
+function renderCart(){
+
+let html="";
+let total=0;
+
+cart.forEach(item=>{
+
+let value=item.price*item.qty;
+
+total+=value;
+
+html+=`
+<div class="line">
+
+<div style="display:flex;align-items:center;">
+<button class="delete"
+onclick="removeProduct('${item.name}')">
+X
+</button>
+
+${item.qty}x ${item.name}
+</div>
+
+<div>
+${item.tax}% | ${value.toFixed(2)}€
+</div>
+
+</div>
+`;
+
+});
+
+document.getElementById("cart").innerHTML=html;
+document.getElementById("total").innerText=total.toFixed(2)+" €";
+
+}
+
+function freeItem(){
+
+let name=prompt("Artikelname");
+
+if(!name) return;
+
+let price=parseFloat(prompt("Preis"));
+
+if(isNaN(price)) return;
+
+let tax=parseInt(prompt("Steuer (7 oder 19)"));
+
+cart.push({
+name:name,
+price:price,
+tax:tax,
+qty:1
+});
+
+renderCart();
+
+}
+
+function showCash(){
+payment="Barzahlung";
+document.getElementById("cashButtons").style.display="block";
+}
+
+function setPayment(type){
+payment=type;
+}
+
+function cashPay(amount){
+
+let total=parseFloat(
+document.getElementById("total")
+.innerText.replace(" €","")
+);
+
+let diff=amount-total;
+
+document.getElementById("change").innerHTML=
+`
+Erhalten: ${amount.toFixed(2)} €<br>
+Rückgeld: ${diff.toFixed(2)} €
+`;
+
+}
+
+function cancelReceipt(){
+
+if(confirm("Bon wirklich stornieren?")){
+
+cart=[];
+payment="";
+renderCart();
+
+document.getElementById("change").innerHTML="";
+
+}
+
+}
+
+function downloadPDF(){
+
+const { jsPDF } = window.jspdf;
+
+const doc=new jsPDF();
+
+doc.text("SURF CLUB",20,20);
+
+let y=40;
+
+cart.forEach(item=>{
+
+doc.text(
+`${item.qty}x ${item.name} - ${(item.qty*item.price).toFixed(2)} €`,
+20,
+y
+);
+
+y+=10;
+
+});
+
+doc.text(
+"Gesamt: "+
+document.getElementById("total").innerText,
+20,
+y+20
+);
+
+doc.save("bon.pdf");
+
+}
+
+function printReceipt(){
+
+let qrText=JSON.stringify(cart);
+
+let win=window.open();
+
+let rows="";
+
+cart.forEach(item=>{
+
+rows+=`
+<tr>
+<td>${item.qty}</td>
+<td>${item.name}</td>
+<td>${item.tax}%</td>
+<td>${(item.qty*item.price).toFixed(2)} €</td>
+</tr>
+`;
+
+});
+
+win.document.write(`
+<html>
+<body>
+
+<h2>SURF CLUB</h2>
+
+<p>
+${new Date().toLocaleString()}<br>
+Mitarbeiter:
+${document.getElementById("employee").value}
+</p>
+
+<table border="1" width="100%">
+<tr>
+<th>Menge</th>
+<th>Produkt</th>
+<th>MwSt</th>
+<th>Preis</th>
+</tr>
+
+${rows}
+
+</table>
+
+<h3>
+Gesamt:
+${document.getElementById("total").innerText}
+</h3>
+
+<p>Zahlungsart: ${payment}</p>
+
+<canvas id="qr"></canvas>
+
+https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js
+
+</body>
+</html>
