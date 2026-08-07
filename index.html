@@ -5,53 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>SURF CLUB POS — Cash</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-  <!-- Critical inline styles to avoid FOUC and ensure immediate improved look -->
-  <style>
-    :root{
-      --primary:#00D2C1;
-      --accent:#07EBD8;
-      --bg:#f6f8fb;
-      --surface:#ffffff;
-      --muted:#6b7280;
-      --text:#0b1220;
-      --radius:12px;
-      --shadow:0 8px 30px rgba(2,6,23,0.07);
-      --container:1200px;
-    }
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
-    .app{min-height:100vh;display:flex;flex-direction:column}
-    header.site-header{background:transparent;padding:18px 20px}
-    .topbar{max-width:var(--container);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
-    .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(90deg,var(--primary),var(--accent));display:grid;place-items:center;color:#fff;font-weight:700;box-shadow:var(--shadow)}
-    .brand-name{font-weight:700;font-size:1.05rem}
-    main.layout{flex:1;max-width:var(--container);margin:20px auto;padding:18px;display:grid;grid-template-columns:1fr 360px;gap:20px}
-    .panel{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
-    .categories{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-    .cat{padding:8px 12px;border-radius:10px;background:rgba(11,17,32,0.04);border:1px solid rgba(11,17,32,0.03);cursor:pointer}
-    .cat.active{background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff}
-    .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-    .product-card{background:linear-gradient(180deg, #fff, #fbfdff);border-radius:12px;padding:14px;cursor:pointer;border:1px solid rgba(2,6,23,0.04);transition:transform .15s ease, box-shadow .15s ease}
-    .product-card:hover{transform:translateY(-6px);box-shadow:0 12px 30px rgba(2,6,23,0.06)}
-    .p-title{font-weight:600;margin-bottom:6px}
-    .p-price{color:var(--primary);font-weight:700}
-    aside.order-drawer{position:sticky;top:80px;height:calc(100vh - 120px);display:flex;flex-direction:column;gap:12px}
-    .order-list{flex:1;overflow:auto;padding-right:6px}
-    .order-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:rgba(2,6,23,0.02);margin-bottom:8px}
-    .order-summary{padding:8px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,255,255,0.95));border:1px solid rgba(2,6,23,0.03)}
-    .order-actions{display:flex;gap:10px}
-    .btn{border:0;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:600}
-    .btn-primary{background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff}
-    .btn-outline{background:transparent;border:1px solid rgba(2,6,23,0.06)}
-    footer.site-footer{padding:14px 20px;color:var(--muted);font-size:0.95rem}
-    /* Responsive tweaks */
-    @media (max-width:1100px){.product-grid{grid-template-columns:repeat(3,1fr)}}
-    @media (max-width:900px){main.layout{grid-template-columns:1fr 320px}}
-    @media (max-width:700px){main.layout{grid-template-columns:1fr}.product-grid{grid-template-columns:repeat(2,1fr)}}
-    @media (max-width:520px){.product-grid{grid-template-columns:repeat(1,1fr)}aside.order-drawer{display:none}}
-  </style>
-
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -62,13 +15,14 @@
           <div class="logo">SC</div>
           <div>
             <div class="brand-name">SURF CLUB POS</div>
-            <div style="font-size:.85rem;color:var(--muted)">Schnell · Klar · Schön</div>
+            <div class="brand-sub">Schnell · Klar · Schön</div>
           </div>
         </a>
-        <div style="display:flex;align-items:center;gap:10px">
-          <label style="font-size:.9rem;color:var(--muted)">Mitarbeiter</label>
-          <input class="cat" value="Simon" style="padding:8px;border-radius:8px;border:1px solid rgba(2,6,23,0.04)">
-          <button class="btn btn-primary">Loslegen</button>
+        <div class="top-controls">
+          <label class="label-inline">Mitarbeiter</label>
+          <input id="employee" class="staff-input" value="Simon">
+          <button id="book-table" class="btn btn-outline">Tisch buchen</button>
+          <button id="start-btn" class="btn btn-primary">Loslegen</button>
         </div>
       </div>
     </header>
@@ -76,87 +30,247 @@
     <main class="layout">
       <section>
         <div class="panel">
-          <div class="categories" role="tablist">
-            <button class="cat active">Ausrüstung</button>
-            <button class="cat">Kleidung</button>
-            <button class="cat">Getränke</button>
-            <button class="cat">Essen</button>
-          </div>
+          <div class="categories" role="tablist" id="categories"></div>
 
-          <div class="product-grid" id="product-grid">
-            <!-- product cards (demo) -->
-            <div class="product-card">
-              <div class="p-title">Breze</div>
-              <div class="p-price">2.50 €</div>
-            </div>
-            <div class="product-card">
-              <div class="p-title">Brötchen Käse</div>
-              <div class="p-price">4.50 €</div>
-            </div>
-            <div class="product-card">
-              <div class="p-title">Brötchen Schinken</div>
-              <div class="p-price">4.90 €</div>
-            </div>
-            <div class="product-card">
-              <div class="p-title">Fanta</div>
-              <div class="p-price">3.50 €</div>
-            </div>
+          <div class="product-grid" id="product-grid" aria-live="polite">
+            <!-- rendered by JS -->
           </div>
         </div>
       </section>
 
-      <aside class="order-drawer panel">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <h3 style="margin:0">Bon</h3>
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-outline" title="Bon leeren">🧹</button>
-            <button class="btn btn-outline" title="Schließen">✖</button>
+      <aside class="order-drawer panel" id="order-drawer">
+        <div class="order-header">
+          <h3>Bon</h3>
+          <div class="order-controls">
+            <button id="clear-order" class="icon-btn" title="Bon leeren" aria-label="Bon leeren">✖</button>
           </div>
         </div>
 
         <div class="order-list" id="order-list">
-          <div style="color:var(--muted)">Keine Artikel — wähle Produkte links aus.</div>
+          <div class="empty">Keine Artikel — wähle Produkte links aus.</div>
         </div>
 
         <div class="order-summary">
-          <div style="display:flex;justify-content:space-between;color:var(--muted)"><div>MwSt. 7%</div><div>0.00 €</div></div>
-          <div style="display:flex;justify-content:space-between;color:var(--muted)"><div>MwSt. 19%</div><div>0.00 €</div></div>
-          <hr style="border:none;border-top:1px solid rgba(2,6,23,0.06);margin:8px 0">
-          <div style="display:flex;justify-content:space-between;font-weight:700;font-size:1.05rem"><div>Gesamt</div><div>0.00 €</div></div>
+          <div class="tax-row"><span>MwSt. 7%</span><span id="vat7">0.00 €</span></div>
+          <div class="tax-row"><span>MwSt. 19%</span><span id="vat19">0.00 €</span></div>
+          <hr>
+          <div class="total-row"><span>Gesamt</span><strong id="total">0.00 €</strong></div>
         </div>
 
         <div class="order-actions">
-          <button class="btn btn-primary" style="flex:1">Kartenzahlung</button>
-          <button class="btn btn-outline" style="flex:1">Barzahlung</button>
+          <button id="pay-card" class="btn btn-primary">Kartenzahlung</button>
+          <button id="pay-cash" class="btn btn-outline">Barzahlung</button>
         </div>
       </aside>
     </main>
 
     <footer class="site-footer">
-      <div style="max-width:var(--container);margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:0 18px">
+      <div class="footer-inner">
         <div>© <span id="year"></span> Cash</div>
-        <div style="display:flex;gap:12px"><a href="#">Datenschutz</a><a href="#">Impressum</a></div>
+        <div class="footer-links"><a href="#">Datenschutz</a><a href="#">Impressum</a></div>
       </div>
     </footer>
   </div>
 
+  <!-- Modals: payment & signature -->
+  <div id="modal-root"></div>
+
   <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
+    // Data model
+    const data = {
+      categories: ['Ausrüstung','Kleidung','Getränke','Essen'],
+      products: {
+        'Ausrüstung':[ {id:'p1',name:'Wakeboard',price:20.0,vat:19}, {id:'p2',name:'Weste',price:10.0,vat:19} ],
+        'Kleidung':[ {id:'p3',name:'T-Shirt Herren',price:25,vat:19} ],
+        'Getränke':[ {id:'p4',name:'Cola',price:3.5,vat:7}, {id:'p5',name:'Fanta',price:3.5,vat:7} ],
+        'Essen':[ {id:'p6',name:'Breze',price:2.5,vat:7}, {id:'p7',name:'Brötchen Käse',price:4.5,vat:7}, {id:'p8',name:'Brötchen Schinken',price:4.9,vat:7} ]
+      }
+    };
 
-    // Basic demo interactions (product add pulse + add to order list)
-    document.querySelectorAll('.product-card').forEach((card)=>{
-      card.addEventListener('click', ()=>{
-        card.classList.add('added');
-        setTimeout(()=>card.classList.remove('added'),380);
+    // Cart state
+    let cart = [];
 
-        // append sample order item
-        const list = document.getElementById('order-list');
-        const row = document.createElement('div');
-        row.className = 'order-item';
-        row.innerHTML = `<div>${card.querySelector('.p-title').innerText}</div><div>${card.querySelector('.p-price').innerText}</div>`;
-        list.appendChild(row);
+    function formatMoney(n){ return n.toFixed(2).replace('.',',') + ' €'; }
+
+    // Render categories as tappable buttons
+    const categoriesEl = document.getElementById('categories');
+    function renderCategories(){
+      categoriesEl.innerHTML = '';
+      data.categories.forEach((c, idx)=>{
+        const btn = document.createElement('button');
+        btn.className = 'cat' + (idx===0? ' active':'');
+        btn.textContent = c;
+        btn.dataset.category = c;
+        btn.addEventListener('click', ()=>{ document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active')); btn.classList.add('active'); renderProducts(c); });
+        categoriesEl.appendChild(btn);
       });
+    }
+
+    // Render product grid
+    const productGrid = document.getElementById('product-grid');
+    function renderProducts(category){
+      const list = data.products[category] || [];
+      productGrid.innerHTML = '';
+      list.forEach(p=>{
+        const card = document.createElement('button');
+        card.className = 'product-card';
+        card.innerHTML = `<div class="p-title">${p.name}</div><div class="p-price">${formatMoney(p.price)}</div>`;
+        card.addEventListener('click', ()=>{ addToCart(p); pulse(card); });
+        productGrid.appendChild(card);
+      });
+    }
+
+    // Add to cart
+    function addToCart(product){
+      const existing = cart.find(i=>i.id===product.id);
+      if(existing){ existing.qty += 1; }
+      else { cart.push({ ...product, qty:1 }); }
+      renderCart();
+    }
+
+    // Render cart
+    function renderCart(){
+      const orderList = document.getElementById('order-list');
+      orderList.innerHTML = '';
+      if(cart.length===0){ orderList.innerHTML = '<div class="empty">Keine Artikel — wähle Produkte links aus.</div>'; updateTotals(); return; }
+      cart.forEach(item=>{
+        const row = document.createElement('div'); row.className = 'order-item';
+        row.innerHTML = `<div class="left"><strong>${item.qty}x</strong> ${item.name}<div class="meta">MwSt. ${item.vat}%</div></div><div class="right"><div>${formatMoney(item.price*item.qty)}</div><div class="row-actions"><button class='small' aria-label='+' data-id='${item.id}'>+</button><button class='small' aria-label='-' data-id='${item.id}'>−</button></div></div>`;
+        orderList.appendChild(row);
+      });
+      // attach qty handlers
+      orderList.querySelectorAll('button.small').forEach(btn=>{
+        btn.addEventListener('click',(e)=>{
+          const id = btn.dataset.id;
+          const it = cart.find(i=>i.id===id);
+          if(!it) return;
+          if(btn.textContent === '+'){ it.qty++; } else { it.qty--; if(it.qty<=0) cart = cart.filter(x=>x.id!==id); }
+          renderCart();
+        });
+      });
+      updateTotals();
+    }
+
+    function updateTotals(){
+      const vat7 = cart.filter(i=>i.vat===7).reduce((s,i)=>s + (i.price*i.qty - (i.price*i.qty)/1.07),0);
+      const vat19 = cart.filter(i=>i.vat===19).reduce((s,i)=>s + (i.price*i.qty - (i.price*i.qty)/1.19),0);
+      const total = cart.reduce((s,i)=>s + i.price*i.qty,0);
+      document.getElementById('vat7').textContent = formatMoney(vat7);
+      document.getElementById('vat19').textContent = formatMoney(vat19);
+      document.getElementById('total').textContent = formatMoney(total);
+      return { total, vat7, vat19 };
+    }
+
+    function clearOrder(){ cart = []; renderCart(); }
+
+    function pulse(el){ el.classList.add('added'); setTimeout(()=>el.classList.remove('added'),380); }
+
+    // Payment flows & signature capture
+    const modalRoot = document.getElementById('modal-root');
+
+    function openPayment(type){
+      const { total } = updateTotals();
+      if(total <= 0){ alert('Wähle zuerst Produkte aus.'); return; }
+      // show payment modal
+      modalRoot.innerHTML = `
+        <div class='modal-backdrop'>
+          <div class='modal'>
+            <h3>Zahlung — ${type}</h3>
+            <div class='field'><label>Betrag</label><div class='big'>${formatMoney(total)}</div></div>
+            <div class='field'><label>Erhalten</label><input id='pay-received' type='number' step='0.01' value='${total.toFixed(2)}'></div>
+            <div class='field'><label>Zahlungsart</label><select id='pay-method'><option>Kartenzahlung</option><option>Barzahlung</option></select></div>
+            <div class='modal-actions'><button id='confirm-pay' class='btn btn-primary'>Bezahlen & Unterschrift</button><button id='cancel-pay' class='btn btn-outline'>Abbrechen</button></div>
+          </div>
+        </div>`;
+      document.getElementById('cancel-pay').addEventListener('click', closeModal);
+      document.getElementById('confirm-pay').addEventListener('click', ()=>{
+        const received = parseFloat(document.getElementById('pay-received').value || 0);
+        const method = document.getElementById('pay-method').value;
+        closeModal();
+        // after payment, require signature for invoices/bookings
+        openSignature({received, method});
+      });
+    }
+
+    function openSignature(payment){
+      modalRoot.innerHTML = `
+        <div class='modal-backdrop'>
+          <div class='modal large'>
+            <h3>Unterschrift des Kunden</h3>
+            <div class='sign-area'><canvas id='sig-canvas'></canvas></div>
+            <div class='sign-actions'><button id='sign-clear' class='btn btn-outline'>Löschen</button><button id='sign-confirm' class='btn btn-primary'>Bestätigen</button><button id='sign-cancel' class='btn btn-outline'>Abbrechen</button></div>
+          </div>
+        </div>`;
+      const canvas = document.getElementById('sig-canvas');
+      setupSignatureCanvas(canvas);
+      document.getElementById('sign-clear').addEventListener('click', ()=>{ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); });
+      document.getElementById('sign-cancel').addEventListener('click', closeModal);
+      document.getElementById('sign-confirm').addEventListener('click', ()=>{
+        const dataUrl = canvas.toDataURL('image/png');
+        closeModal();
+        // generate invoice page
+        const employee = document.getElementById('employee').value || '—';
+        generateInvoicePage({payment, signature:dataUrl, employee});
+        clearOrder();
+      });
+    }
+
+    function closeModal(){ modalRoot.innerHTML = ''; }
+
+    function setupSignatureCanvas(canvas){
+      const rect = () => { const ratio = window.devicePixelRatio || 1; canvas.width = canvas.offsetWidth * ratio; canvas.height = canvas.offsetHeight * ratio; const ctx = canvas.getContext('2d'); ctx.scale(ratio,ratio); ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#0b1220'; };
+      canvas.style.width = '100%'; canvas.style.height = '200px';
+      rect(); window.addEventListener('resize', rect);
+      const ctx = canvas.getContext('2d');
+      let drawing=false; let last={x:0,y:0};
+      function pos(e){ const r=canvas.getBoundingClientRect(); if(e.touches){ return {x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top}; } return {x: e.clientX - r.left, y: e.clientY - r.top}; }
+      function down(e){ drawing=true; last=pos(e); }
+      function move(e){ if(!drawing) return; const p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; }
+      function up(){ drawing=false; }
+      canvas.addEventListener('mousedown', down); canvas.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
+      canvas.addEventListener('touchstart', down); canvas.addEventListener('touchmove', move); window.addEventListener('touchend', up);
+    }
+
+    // Invoice generation (opens new window / printable)
+    function generateInvoicePage({payment, signature, employee}){
+      const { total, vat7, vat19 } = updateTotals();
+      const itemsHtml = cart.map(i=>`<tr><td>${i.name}</td><td style="text-align:center">${i.qty}</td><td style="text-align:right">${formatMoney(i.price)}</td><td style="text-align:right">${formatMoney(i.price*i.qty)}</td></tr>`).join('');
+      const received = (payment && payment.received) ? payment.received : parseFloat((document.getElementById('total').textContent || '0').replace(/[€ ]/g,'').replace(',','.'));
+      const method = (payment && payment.method) ? payment.method : (payment && payment.method) || '—';
+      const change = received - total;
+      const company = 'Surf Club GmbH';
+      const html = `
+        <html><head><meta charset='utf-8'><title>Rechnung</title><style>body{font-family:Inter,Arial,Helvetica,sans-serif;padding:24px;color:#0b1220}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #eee}footer{margin-top:20px;font-size:0.9rem;color:#666}</style></head><body>
+        <h2>${company}</h2>
+        <div>Bedient von: ${employee}</div>
+        <h3>Rechnung</h3>
+        <table><thead><tr><th>Produkt</th><th style="text-align:center">Menge</th><th style="text-align:right">Preis</th><th style="text-align:right">Summe</th></tr></thead><tbody>${itemsHtml}</tbody></table>
+        <div style='margin-top:12px'><div> MwSt. 7%: ${formatMoney(vat7)}</div><div> MwSt. 19%: ${formatMoney(vat19)}</div></div>
+        <h3>Gesamt: ${formatMoney(total)}</h3>
+        <div>Zahlungsart: ${method}</div>
+        <div>Erhalten: ${formatMoney(received || total)}</div>
+        <div>Rückgeld: ${formatMoney(change || 0)}</div>
+        <h4>Unterschrift</h4>
+        <div><img src='${signature}' style='max-width:320px;border:1px solid #eee'></div>
+        <footer>Vielen Dank für Ihren Einkauf.</footer>
+        </body></html>`;
+      const w = window.open('','_blank');
+      w.document.open(); w.document.write(html); w.document.close();
+    }
+
+    // Event hooks
+    document.getElementById('clear-order').addEventListener('click', ()=>{ if(confirm('Bon wirklich leeren?')) clearOrder(); });
+    document.getElementById('pay-card').addEventListener('click', ()=> openPayment('Kartenzahlung'));
+    document.getElementById('pay-cash').addEventListener('click', ()=> openPayment('Barzahlung'));
+    document.getElementById('book-table').addEventListener('click', ()=>{
+      // direct booking flow -> require signature and create invoice-like record
+      if(cart.length===0){ alert('Wähle zuerst Produkte.'); return; }
+      openSignature({received: null, method: 'Tisch-Buchung'});
     });
+
+    // start
+    renderCategories(); renderProducts(data.categories[0]); renderCart();
+    document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
