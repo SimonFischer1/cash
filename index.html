@@ -5,228 +5,158 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>SURF CLUB POS — Cash</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Critical inline styles to avoid FOUC and ensure immediate improved look -->
+  <style>
+    :root{
+      --primary:#00D2C1;
+      --accent:#07EBD8;
+      --bg:#f6f8fb;
+      --surface:#ffffff;
+      --muted:#6b7280;
+      --text:#0b1220;
+      --radius:12px;
+      --shadow:0 8px 30px rgba(2,6,23,0.07);
+      --container:1200px;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+    .app{min-height:100vh;display:flex;flex-direction:column}
+    header.site-header{background:transparent;padding:18px 20px}
+    .topbar{max-width:var(--container);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
+    .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(90deg,var(--primary),var(--accent));display:grid;place-items:center;color:#fff;font-weight:700;box-shadow:var(--shadow)}
+    .brand-name{font-weight:700;font-size:1.05rem}
+    main.layout{flex:1;max-width:var(--container);margin:20px auto;padding:18px;display:grid;grid-template-columns:1fr 360px;gap:20px}
+    .panel{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+    .categories{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .cat{padding:8px 12px;border-radius:10px;background:rgba(11,17,32,0.04);border:1px solid rgba(11,17,32,0.03);cursor:pointer}
+    .cat.active{background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff}
+    .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .product-card{background:linear-gradient(180deg, #fff, #fbfdff);border-radius:12px;padding:14px;cursor:pointer;border:1px solid rgba(2,6,23,0.04);transition:transform .15s ease, box-shadow .15s ease}
+    .product-card:hover{transform:translateY(-6px);box-shadow:0 12px 30px rgba(2,6,23,0.06)}
+    .p-title{font-weight:600;margin-bottom:6px}
+    .p-price{color:var(--primary);font-weight:700}
+    aside.order-drawer{position:sticky;top:80px;height:calc(100vh - 120px);display:flex;flex-direction:column;gap:12px}
+    .order-list{flex:1;overflow:auto;padding-right:6px}
+    .order-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:rgba(2,6,23,0.02);margin-bottom:8px}
+    .order-summary{padding:8px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,255,255,0.95));border:1px solid rgba(2,6,23,0.03)}
+    .order-actions{display:flex;gap:10px}
+    .btn{border:0;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn-primary{background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff}
+    .btn-outline{background:transparent;border:1px solid rgba(2,6,23,0.06)}
+    footer.site-footer{padding:14px 20px;color:var(--muted);font-size:0.95rem}
+    /* Responsive tweaks */
+    @media (max-width:1100px){.product-grid{grid-template-columns:repeat(3,1fr)}}
+    @media (max-width:900px){main.layout{grid-template-columns:1fr 320px}}
+    @media (max-width:700px){main.layout{grid-template-columns:1fr}.product-grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:520px){.product-grid{grid-template-columns:repeat(1,1fr)}aside.order-drawer{display:none}}
+  </style>
+
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="site-header" role="banner">
-    <div class="container header-inner">
-      <a class="brand" href="#" aria-label="SURF CLUB POS — Startseite">
-        <div class="logo-mark" aria-hidden="true">SC</div>
-        <div class="brand-text">
-          <div class="brand-name">SURF CLUB POS</div>
-          <div class="brand-sub">Schnell. Klar. Schön.</div>
-        </div>
-      </a>
-
-      <div class="header-mid">
-        <div class="staff">
-          <label class="staff-label">Mitarbeiter</label>
-          <input class="staff-input" value="Simon" aria-label="Mitarbeiter">
-        </div>
-      </div>
-
-      <div class="header-actions">
-        <button class="btn btn-ghost btn-icon" id="theme-toggle" aria-label="Theme wechseln">🌗</button>
-        <button class="btn btn-primary" id="cta-top">Loslegen</button>
-      </div>
-    </div>
-  </header>
-
-  <main class="layout">
-    <section class="products" aria-label="Produkte">
-      <div class="container products-inner">
-        <div class="categories" role="tablist" aria-label="Produktkategorien">
-          <button class="cat active" role="tab">Ausrüstung</button>
-          <button class="cat" role="tab">Kleidung</button>
-          <button class="cat" role="tab">Getränke</button>
-          <button class="cat" role="tab">Essen</button>
-        </div>
-
-        <div class="product-grid" id="product-grid" aria-live="polite">
-          <!-- Beispiellisten: ersetzen durch dynamische Daten im Produktivsystem -->
-          <button class="product-card">
-            <div class="p-title">Breze</div>
-            <div class="p-price">2.50 €</div>
-          </button>
-
-          <button class="product-card">
-            <div class="p-title">Brötchen Käse</div>
-            <div class="p-price">4.50 €</div>
-          </button>
-
-          <button class="product-card">
-            <div class="p-title">Brötchen Schinken</div>
-            <div class="p-price">4.90 €</div>
-          </button>
-
-          <button class="product-card">
-            <div class="p-title">Brötchen Salami</div>
-            <div class="p-price">4.90 €</div>
-          </button>
-
-          <button class="product-card">
-            <div class="p-title">Brötchen Vegan</div>
-            <div class="p-price">4.50 €</div>
-          </button>
-
-          <button class="product-card">
-            <div class="p-title">Fanta</div>
-            <div class="p-price">3.50 €</div>
-          </button>
-        </div>
-
-      </div>
-    </section>
-
-    <aside id="order-drawer" class="order-drawer" aria-label="Bon">
-      <div class="order-header">
-        <h3>Bon</h3>
-        <div class="order-controls">
-          <button class="btn btn-ghost btn-icon" id="clear-order" title="Bon leeren">🧹</button>
-          <button class="btn btn-ghost btn-icon" id="close-order" title="Bon schließen">✖</button>
+  <div class="app">
+    <header class="site-header">
+      <div class="topbar">
+        <a class="brand" href="#">
+          <div class="logo">SC</div>
+          <div>
+            <div class="brand-name">SURF CLUB POS</div>
+            <div style="font-size:.85rem;color:var(--muted)">Schnell · Klar · Schön</div>
+          </div>
+        </a>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:.9rem;color:var(--muted)">Mitarbeiter</label>
+          <input class="cat" value="Simon" style="padding:8px;border-radius:8px;border:1px solid rgba(2,6,23,0.04)">
+          <button class="btn btn-primary">Loslegen</button>
         </div>
       </div>
+    </header>
 
-      <div class="order-list" id="order-list">
-        <div class="empty">Keine Artikel — wähle Produkte links aus.</div>
+    <main class="layout">
+      <section>
+        <div class="panel">
+          <div class="categories" role="tablist">
+            <button class="cat active">Ausrüstung</button>
+            <button class="cat">Kleidung</button>
+            <button class="cat">Getränke</button>
+            <button class="cat">Essen</button>
+          </div>
+
+          <div class="product-grid" id="product-grid">
+            <!-- product cards (demo) -->
+            <div class="product-card">
+              <div class="p-title">Breze</div>
+              <div class="p-price">2.50 €</div>
+            </div>
+            <div class="product-card">
+              <div class="p-title">Brötchen Käse</div>
+              <div class="p-price">4.50 €</div>
+            </div>
+            <div class="product-card">
+              <div class="p-title">Brötchen Schinken</div>
+              <div class="p-price">4.90 €</div>
+            </div>
+            <div class="product-card">
+              <div class="p-title">Fanta</div>
+              <div class="p-price">3.50 €</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="order-drawer panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h3 style="margin:0">Bon</h3>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline" title="Bon leeren">🧹</button>
+            <button class="btn btn-outline" title="Schließen">✖</button>
+          </div>
+        </div>
+
+        <div class="order-list" id="order-list">
+          <div style="color:var(--muted)">Keine Artikel — wähle Produkte links aus.</div>
+        </div>
+
+        <div class="order-summary">
+          <div style="display:flex;justify-content:space-between;color:var(--muted)"><div>MwSt. 7%</div><div>0.00 €</div></div>
+          <div style="display:flex;justify-content:space-between;color:var(--muted)"><div>MwSt. 19%</div><div>0.00 €</div></div>
+          <hr style="border:none;border-top:1px solid rgba(2,6,23,0.06);margin:8px 0">
+          <div style="display:flex;justify-content:space-between;font-weight:700;font-size:1.05rem"><div>Gesamt</div><div>0.00 €</div></div>
+        </div>
+
+        <div class="order-actions">
+          <button class="btn btn-primary" style="flex:1">Kartenzahlung</button>
+          <button class="btn btn-outline" style="flex:1">Barzahlung</button>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="site-footer">
+      <div style="max-width:var(--container);margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:0 18px">
+        <div>© <span id="year"></span> Cash</div>
+        <div style="display:flex;gap:12px"><a href="#">Datenschutz</a><a href="#">Impressum</a></div>
       </div>
-
-      <div class="order-summary">
-        <div class="tax-line">MwSt. 7%: <span id="vat-7">0.00 €</span></div>
-        <div class="tax-line">MwSt. 19%: <span id="vat-19">0.00 €</span></div>
-        <div class="order-total">Gesamt: <span id="total">0.00 €</span></div>
-      </div>
-
-      <div class="order-actions">
-        <button class="btn btn-success">Kartenzahlung</button>
-        <button class="btn btn-warning">Barzahlung</button>
-      </div>
-    </aside>
-
-    <div id="bottom-summary" class="bottom-summary" aria-hidden="true">
-      <div class="sum-text">Gesamt: <strong id="total-bottom">0.00 €</strong></div>
-      <div class="bottom-actions">
-        <button class="btn btn-primary" id="pay-card">Kartenzahlung</button>
-        <button class="btn btn-outline" id="pay-cash">Barzahlung</button>
-        <button class="btn btn-ghost btn-icon" id="open-order-mobile" aria-label="Bon öffnen">🧾</button>
-      </div>
-    </div>
-
-  </main>
-
-  <footer class="site-footer" role="contentinfo">
-    <div class="container footer-inner">
-      <div>© <span id="year"></span> Cash</div>
-      <div class="footer-links">
-        <a href="#">Datenschutz</a>
-        <a href="#">Impressum</a>
-      </div>
-    </div>
-  </footer>
+    </footer>
+  </div>
 
   <script>
-    // Minimal client-side behaviour: animated microinteractions + order list demo
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    const root = document.documentElement;
-    const productCards = document.querySelectorAll('.product-card');
-    const orderList = document.getElementById('order-list');
-    const totalEl = document.getElementById('total');
-    const totalBottom = document.getElementById('total-bottom');
-    const vat7 = document.getElementById('vat-7');
-    const vat19 = document.getElementById('vat-19');
+    // Basic demo interactions (product add pulse + add to order list)
+    document.querySelectorAll('.product-card').forEach((card)=>{
+      card.addEventListener('click', ()=>{
+        card.classList.add('added');
+        setTimeout(()=>card.classList.remove('added'),380);
 
-    let orderItems = [];
-
-    function format(euro){
-      return euro.toFixed(2).replace('.',',') + ' €';
-    }
-
-    function recalc(){
-      let total = orderItems.reduce((s,i)=>s+i.price,0);
-      let vat7val = orderItems.filter(i=>i.vat===7).reduce((s,i)=>s+i.price*0.07,0);
-      let vat19val = orderItems.filter(i=>i.vat===19).reduce((s,i)=>s+i.price*0.19,0);
-      totalEl.textContent = format(total);
-      totalBottom.textContent = format(total);
-      vat7.textContent = format(vat7val);
-      vat19.textContent = format(vat19val);
-    }
-
-    function renderOrder(){
-      orderList.innerHTML = '';
-      if(orderItems.length === 0){
-        orderList.innerHTML = '<div class="empty">Keine Artikel — wähle Produkte links aus.</div>';
-        return;
-      }
-      orderItems.forEach((it, idx) => {
+        // append sample order item
+        const list = document.getElementById('order-list');
         const row = document.createElement('div');
         row.className = 'order-item';
-        row.innerHTML = `<div class="o-left">${it.qty}x ${it.title}<div class="o-meta">MwSt. ${it.vat}%</div></div><div class="o-right">${format(it.price)}</div>`;
-        row.addEventListener('click', ()=>{
-          // remove on click (demo behaviour)
-          orderItems.splice(idx,1);
-          renderOrder(); recalc();
-        });
-        orderList.appendChild(row);
-      });
-    }
-
-    // Demo prices and VAT mapping
-    const demoMap = {
-      'Breze': {price:2.5, vat:7},
-      'Brötchen Käse': {price:4.5, vat:7},
-      'Brötchen Schinken': {price:4.9, vat:7},
-      'Brötchen Salami': {price:4.9, vat:7},
-      'Brötchen Vegan': {price:4.5, vat:7},
-      'Fanta': {price:3.5, vat:7}
-    };
-
-    productCards.forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const title = btn.querySelector('.p-title').textContent.trim();
-        const info = demoMap[title] || {price:5.0, vat:19};
-        orderItems.push({title, price:info.price, vat:info.vat, qty:1});
-        renderOrder(); recalc();
-
-        // pulse animation
-        btn.classList.add('added');
-        setTimeout(()=>btn.classList.remove('added'),380);
-
-        // on small screens show bottom-summary
-        if(window.matchMedia('(max-width:640px)').matches){
-          document.getElementById('bottom-summary').setAttribute('aria-hidden','false');
-        }
+        row.innerHTML = `<div>${card.querySelector('.p-title').innerText}</div><div>${card.querySelector('.p-price').innerText}</div>`;
+        list.appendChild(row);
       });
     });
-
-    // Drawer controls
-    const orderDrawer = document.getElementById('order-drawer');
-    const openMobile = document.getElementById('open-order-mobile');
-    const closeOrder = document.getElementById('close-order');
-    const clearOrder = document.getElementById('clear-order');
-
-    function openOrder(){ orderDrawer.classList.add('open'); }
-    function closeOrderFn(){ orderDrawer.classList.remove('open'); }
-
-    openMobile && openMobile.addEventListener('click', openOrder);
-    closeOrder && closeOrder.addEventListener('click', closeOrderFn);
-    clearOrder && clearOrder.addEventListener('click', ()=>{ orderItems = []; renderOrder(); recalc(); });
-
-    document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeOrderFn(); });
-
-    // Theme toggle
-    const themeToggle = document.getElementById('theme-toggle');
-    const stored = localStorage.getItem('cash:theme');
-    if(stored === 'dark') root.classList.add('theme-dark');
-    themeToggle && themeToggle.addEventListener('click', ()=>{
-      const dark = root.classList.toggle('theme-dark');
-      localStorage.setItem('cash:theme', dark ? 'dark' : 'light');
-    });
-
-    // Improve UX: detect pointer type
-    if(window.matchMedia('(pointer:coarse)').matches){
-      document.documentElement.classList.add('pointer-coarse');
-    }
   </script>
 </body>
 </html>
