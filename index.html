@@ -21,8 +21,8 @@
         <div class="top-controls">
           <label class="label-inline">Mitarbeiter</label>
           <input id="employee" class="staff-input" value="Simon">
-          <button id="book-table" class="btn btn-outline">Tisch buchen</button>
-          <button id="start-btn" class="btn btn-primary">Loslegen</button>
+          <button id="book-table" class="btn btn-outline" type="button">Tisch buchen</button>
+          <button id="start-btn" class="btn btn-primary" type="button">Loslegen</button>
         </div>
       </div>
     </header>
@@ -42,7 +42,7 @@
         <div class="order-header">
           <h3>Bon</h3>
           <div class="order-controls">
-            <button id="clear-order" class="icon-btn" title="Bon leeren" aria-label="Bon leeren">✖</button>
+            <button id="clear-order" class="icon-btn" title="Bon leeren" aria-label="Bon leeren" type="button">🧹</button>
           </div>
         </div>
 
@@ -58,8 +58,8 @@
         </div>
 
         <div class="order-actions">
-          <button id="pay-card" class="btn btn-primary">Kartenzahlung</button>
-          <button id="pay-cash" class="btn btn-outline">Barzahlung</button>
+          <button id="pay-card" class="btn btn-primary" type="button">Kartenzahlung</button>
+          <button id="pay-cash" class="btn btn-outline" type="button">Barzahlung</button>
         </div>
       </aside>
     </main>
@@ -76,37 +76,44 @@
   <div id="modal-root"></div>
 
   <script>
-    // Data model
+    // --- Data model ---
     const data = {
       categories: ['Ausrüstung','Kleidung','Getränke','Essen'],
       products: {
-        'Ausrüstung':[ {id:'p1',name:'Wakeboard',price:20.0,vat:19}, {id:'p2',name:'Weste',price:10.0,vat:19} ],
-        'Kleidung':[ {id:'p3',name:'T-Shirt Herren',price:25,vat:19} ],
-        'Getränke':[ {id:'p4',name:'Cola',price:3.5,vat:7}, {id:'p5',name:'Fanta',price:3.5,vat:7} ],
-        'Essen':[ {id:'p6',name:'Breze',price:2.5,vat:7}, {id:'p7',name:'Brötchen Käse',price:4.5,vat:7}, {id:'p8',name:'Brötchen Schinken',price:4.9,vat:7} ]
+        'Ausrüstung':[ {id:'p1',name:'Wakeboard',price:20.00,vat:19}, {id:'p2',name:'Weste',price:10.00,vat:19} ],
+        'Kleidung':[ {id:'p3',name:'T-Shirt Herren',price:25.00,vat:19} ],
+        'Getränke':[ {id:'p4',name:'Cola',price:3.50,vat:7}, {id:'p5',name:'Fanta',price:3.50,vat:7} ],
+        'Essen':[ {id:'p6',name:'Breze',price:2.50,vat:7}, {id:'p7',name:'Brötchen Käse',price:4.50,vat:7}, {id:'p8',name:'Brötchen Schinken',price:4.90,vat:7} ]
       }
     };
 
-    // Cart state
+    // --- Cart state ---
     let cart = [];
 
-    function formatMoney(n){ return n.toFixed(2).replace('.',',') + ' €'; }
+    function formatMoney(n){ return (Math.round(n*100)/100).toFixed(2).replace('.',',') + ' €'; }
 
-    // Render categories as tappable buttons
+    // --- Render categories ---
     const categoriesEl = document.getElementById('categories');
     function renderCategories(){
       categoriesEl.innerHTML = '';
       data.categories.forEach((c, idx)=>{
         const btn = document.createElement('button');
         btn.className = 'cat' + (idx===0? ' active':'');
+        btn.type = 'button';
         btn.textContent = c;
         btn.dataset.category = c;
-        btn.addEventListener('click', ()=>{ document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active')); btn.classList.add('active'); renderProducts(c); });
+        btn.setAttribute('role','tab');
+        btn.setAttribute('aria-selected', idx===0 ? 'true':'false');
+        btn.addEventListener('click', ()=>{
+          document.querySelectorAll('.cat').forEach(x=>{ x.classList.remove('active'); x.setAttribute('aria-selected','false'); });
+          btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+          renderProducts(c);
+        });
         categoriesEl.appendChild(btn);
       });
     }
 
-    // Render product grid
+    // --- Render products ---
     const productGrid = document.getElementById('product-grid');
     function renderProducts(category){
       const list = data.products[category] || [];
@@ -114,37 +121,46 @@
       list.forEach(p=>{
         const card = document.createElement('button');
         card.className = 'product-card';
+        card.type = 'button';
         card.innerHTML = `<div class="p-title">${p.name}</div><div class="p-price">${formatMoney(p.price)}</div>`;
         card.addEventListener('click', ()=>{ addToCart(p); pulse(card); });
         productGrid.appendChild(card);
       });
     }
 
-    // Add to cart
+    // --- Cart operations ---
     function addToCart(product){
+      // ensure numeric
+      const price = Number(product.price) || 0;
       const existing = cart.find(i=>i.id===product.id);
       if(existing){ existing.qty += 1; }
-      else { cart.push({ ...product, qty:1 }); }
+      else { cart.push({ id: product.id, name: product.name, price: price, vat: product.vat, qty: 1 }); }
       renderCart();
     }
 
-    // Render cart
     function renderCart(){
       const orderList = document.getElementById('order-list');
       orderList.innerHTML = '';
       if(cart.length===0){ orderList.innerHTML = '<div class="empty">Keine Artikel — wähle Produkte links aus.</div>'; updateTotals(); return; }
       cart.forEach(item=>{
         const row = document.createElement('div'); row.className = 'order-item';
-        row.innerHTML = `<div class="left"><strong>${item.qty}x</strong> ${item.name}<div class="meta">MwSt. ${item.vat}%</div></div><div class="right"><div>${formatMoney(item.price*item.qty)}</div><div class="row-actions"><button class='small' aria-label='+' data-id='${item.id}'>+</button><button class='small' aria-label='-' data-id='${item.id}'>−</button></div></div>`;
+        row.innerHTML = `
+          <div class="left"><strong>${item.qty}x</strong> ${item.name}<div class="meta">MwSt. ${item.vat}%</div></div>
+          <div class="right">
+            <div>${formatMoney(item.price * item.qty)}</div>
+            <div class="row-actions">
+              <button class='small' type='button' aria-label='increase' data-action='inc' data-id='${item.id}'>+</button>
+              <button class='small' type='button' aria-label='decrease' data-action='dec' data-id='${item.id}'>−</button>
+            </div>
+          </div>`;
         orderList.appendChild(row);
       });
-      // attach qty handlers
+      // event delegation for inc/dec
       orderList.querySelectorAll('button.small').forEach(btn=>{
         btn.addEventListener('click',(e)=>{
-          const id = btn.dataset.id;
-          const it = cart.find(i=>i.id===id);
-          if(!it) return;
-          if(btn.textContent === '+'){ it.qty++; } else { it.qty--; if(it.qty<=0) cart = cart.filter(x=>x.id!==id); }
+          const action = btn.dataset.action; const id = btn.dataset.id;
+          const it = cart.find(i=>i.id===id); if(!it) return;
+          if(action === 'inc') it.qty++; else { it.qty--; if(it.qty<=0) cart = cart.filter(x=>x.id!==id); }
           renderCart();
         });
       });
@@ -161,17 +177,16 @@
       return { total, vat7, vat19 };
     }
 
-    function clearOrder(){ cart = []; renderCart(); }
+    function clearOrder(){ if(confirm('Bon wirklich leeren?')){ cart = []; renderCart(); } }
 
     function pulse(el){ el.classList.add('added'); setTimeout(()=>el.classList.remove('added'),380); }
 
-    // Payment flows & signature capture
+    // --- Payment & Signature flow ---
     const modalRoot = document.getElementById('modal-root');
 
     function openPayment(type){
       const { total } = updateTotals();
       if(total <= 0){ alert('Wähle zuerst Produkte aus.'); return; }
-      // show payment modal
       modalRoot.innerHTML = `
         <div class='modal-backdrop'>
           <div class='modal'>
@@ -179,7 +194,7 @@
             <div class='field'><label>Betrag</label><div class='big'>${formatMoney(total)}</div></div>
             <div class='field'><label>Erhalten</label><input id='pay-received' type='number' step='0.01' value='${total.toFixed(2)}'></div>
             <div class='field'><label>Zahlungsart</label><select id='pay-method'><option>Kartenzahlung</option><option>Barzahlung</option></select></div>
-            <div class='modal-actions'><button id='confirm-pay' class='btn btn-primary'>Bezahlen & Unterschrift</button><button id='cancel-pay' class='btn btn-outline'>Abbrechen</button></div>
+            <div class='modal-actions'><button id='confirm-pay' class='btn btn-primary' type='button'>Bezahlen & Unterschrift</button><button id='cancel-pay' class='btn btn-outline' type='button'>Abbrechen</button></div>
           </div>
         </div>`;
       document.getElementById('cancel-pay').addEventListener('click', closeModal);
@@ -187,7 +202,6 @@
         const received = parseFloat(document.getElementById('pay-received').value || 0);
         const method = document.getElementById('pay-method').value;
         closeModal();
-        // after payment, require signature for invoices/bookings
         openSignature({received, method});
       });
     }
@@ -198,7 +212,7 @@
           <div class='modal large'>
             <h3>Unterschrift des Kunden</h3>
             <div class='sign-area'><canvas id='sig-canvas'></canvas></div>
-            <div class='sign-actions'><button id='sign-clear' class='btn btn-outline'>Löschen</button><button id='sign-confirm' class='btn btn-primary'>Bestätigen</button><button id='sign-cancel' class='btn btn-outline'>Abbrechen</button></div>
+            <div class='sign-actions'><button id='sign-clear' class='btn btn-outline' type='button'>Löschen</button><button id='sign-confirm' class='btn btn-primary' type='button'>Bestätigen</button><button id='sign-cancel' class='btn btn-outline' type='button'>Abbrechen</button></div>
           </div>
         </div>`;
       const canvas = document.getElementById('sig-canvas');
@@ -206,71 +220,80 @@
       document.getElementById('sign-clear').addEventListener('click', ()=>{ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); });
       document.getElementById('sign-cancel').addEventListener('click', closeModal);
       document.getElementById('sign-confirm').addEventListener('click', ()=>{
+        const blank = getBlankDataUrl(canvas);
         const dataUrl = canvas.toDataURL('image/png');
+        if(dataUrl === blank){ alert('Bitte unterschreiben.'); return; }
         closeModal();
-        // generate invoice page
         const employee = document.getElementById('employee').value || '—';
-        generateInvoicePage({payment, signature:dataUrl, employee});
-        clearOrder();
+        // create snapshot of cart for invoice before clearing
+        const invoiceCart = cart.map(i=>({ ...i }));
+        generateInvoicePage({payment, signature:dataUrl, employee, invoiceCart});
+        // clear cart after invoice
+        cart = [];
+        renderCart();
       });
     }
 
     function closeModal(){ modalRoot.innerHTML = ''; }
 
     function setupSignatureCanvas(canvas){
-      const rect = () => { const ratio = window.devicePixelRatio || 1; canvas.width = canvas.offsetWidth * ratio; canvas.height = canvas.offsetHeight * ratio; const ctx = canvas.getContext('2d'); ctx.scale(ratio,ratio); ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#0b1220'; };
-      canvas.style.width = '100%'; canvas.style.height = '200px';
-      rect(); window.addEventListener('resize', rect);
-      const ctx = canvas.getContext('2d');
-      let drawing=false; let last={x:0,y:0};
-      function pos(e){ const r=canvas.getBoundingClientRect(); if(e.touches){ return {x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top}; } return {x: e.clientX - r.left, y: e.clientY - r.top}; }
-      function down(e){ drawing=true; last=pos(e); }
-      function move(e){ if(!drawing) return; const p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; }
+      canvas.style.width = '100%'; canvas.style.height = '240px';
+      function resize(){ const ratio = Math.max(window.devicePixelRatio || 1,1); const w = canvas.offsetWidth; const h = canvas.offsetHeight; canvas.width = Math.round(w * ratio); canvas.height = Math.round(h * ratio); const ctx = canvas.getContext('2d'); ctx.scale(ratio, ratio); ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#0b1220'; }
+      resize(); window.addEventListener('resize', resize);
+      const ctx = canvas.getContext('2d'); let drawing=false; let last={x:0,y:0};
+      function pos(e){ const r=canvas.getBoundingClientRect(); if(e.touches && e.touches.length) return {x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top}; return {x: e.clientX - r.left, y: e.clientY - r.top}; }
+      function down(e){ e.preventDefault(); drawing=true; last=pos(e); }
+      function move(e){ if(!drawing) return; e.preventDefault(); const p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; }
       function up(){ drawing=false; }
       canvas.addEventListener('mousedown', down); canvas.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
       canvas.addEventListener('touchstart', down); canvas.addEventListener('touchmove', move); window.addEventListener('touchend', up);
     }
 
-    // Invoice generation (opens new window / printable)
-    function generateInvoicePage({payment, signature, employee}){
-      const { total, vat7, vat19 } = updateTotals();
-      const itemsHtml = cart.map(i=>`<tr><td>${i.name}</td><td style="text-align:center">${i.qty}</td><td style="text-align:right">${formatMoney(i.price)}</td><td style="text-align:right">${formatMoney(i.price*i.qty)}</td></tr>`).join('');
-      const received = (payment && payment.received) ? payment.received : parseFloat((document.getElementById('total').textContent || '0').replace(/[€ ]/g,'').replace(',','.'));
-      const method = (payment && payment.method) ? payment.method : (payment && payment.method) || '—';
+    function getBlankDataUrl(canvas){ const blank = document.createElement('canvas'); blank.width = canvas.width; blank.height = canvas.height; return blank.toDataURL('image/png'); }
+
+    // --- Invoice generation and direct print ---
+    function generateInvoicePage({payment, signature, employee, invoiceCart}){
+      const vat7 = invoiceCart.filter(i=>i.vat===7).reduce((s,i)=>s + (i.price*i.qty - (i.price*i.qty)/1.07),0);
+      const vat19 = invoiceCart.filter(i=>i.vat===19).reduce((s,i)=>s + (i.price*i.qty - (i.price*i.qty)/1.19),0);
+      const total = invoiceCart.reduce((s,i)=>s + i.price*i.qty,0);
+      const received = (payment && payment.received) ? payment.received : total;
       const change = received - total;
+      const method = (payment && payment.method) ? payment.method : '—';
       const company = 'Surf Club GmbH';
+      const itemsHtml = invoiceCart.map(i=>`<tr><td>${escapeHtml(i.name)}</td><td style="text-align:center">${i.qty}</td><td style="text-align:right">${formatMoney(i.price)}</td><td style="text-align:right">${formatMoney(i.price*i.qty)}</td></tr>`).join('');
       const html = `
-        <html><head><meta charset='utf-8'><title>Rechnung</title><style>body{font-family:Inter,Arial,Helvetica,sans-serif;padding:24px;color:#0b1220}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #eee}footer{margin-top:20px;font-size:0.9rem;color:#666}</style></head><body>
-        <h2>${company}</h2>
-        <div>Bedient von: ${employee}</div>
-        <h3>Rechnung</h3>
-        <table><thead><tr><th>Produkt</th><th style="text-align:center">Menge</th><th style="text-align:right">Preis</th><th style="text-align:right">Summe</th></tr></thead><tbody>${itemsHtml}</tbody></table>
-        <div style='margin-top:12px'><div> MwSt. 7%: ${formatMoney(vat7)}</div><div> MwSt. 19%: ${formatMoney(vat19)}</div></div>
+        <html><head><meta charset='utf-8'><title>Rechnung</title><style>body{font-family:Arial,Helvetica,sans-serif;padding:18px;color:#0b1220}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #eee}header{display:flex;justify-content:space-between;align-items:center}h3{margin:8px 0}</style></head><body>
+        <header><div><strong>${company}</strong><div>Adresse</div></div><div><strong>Rechnung</strong><div>${new Date().toLocaleString()}</div></div></header>
+        <h3>Produkte</h3>
+        <table><thead><tr><th>Produkt</th><th style="text-align:center">Menge</th><th style="text-align:right">Einzelpreis</th><th style="text-align:right">Summe</th></tr></thead><tbody>${itemsHtml}</tbody></table>
+        <div style='margin-top:12px'><div>MwSt. 7%: ${formatMoney(vat7)}</div><div>MwSt. 19%: ${formatMoney(vat19)}</div></div>
         <h3>Gesamt: ${formatMoney(total)}</h3>
-        <div>Zahlungsart: ${method}</div>
-        <div>Erhalten: ${formatMoney(received || total)}</div>
-        <div>Rückgeld: ${formatMoney(change || 0)}</div>
+        <div>Zahlungsart: ${escapeHtml(method)}</div>
+        <div>Erhalten: ${formatMoney(received)}</div>
+        <div>Rückgeld: ${formatMoney(change)}</div>
         <h4>Unterschrift</h4>
         <div><img src='${signature}' style='max-width:320px;border:1px solid #eee'></div>
-        <footer>Vielen Dank für Ihren Einkauf.</footer>
+        <footer style='margin-top:18px;color:#666'>Bedient von: ${escapeHtml(employee)} — ${company}</footer>
+        <script>window.onload = function(){ setTimeout(()=>{ window.print(); },120); };</script>
         </body></html>`;
       const w = window.open('','_blank');
+      if(!w){ alert('Popup blockiert. Erlaube Popups für diese Seite.'); return; }
       w.document.open(); w.document.write(html); w.document.close();
     }
 
-    // Event hooks
-    document.getElementById('clear-order').addEventListener('click', ()=>{ if(confirm('Bon wirklich leeren?')) clearOrder(); });
+    function escapeHtml(s){ return String(s).replace(/[&<>"]+/g, function(match){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[match]; }); }
+
+    // --- Event hooks ---
+    document.getElementById('clear-order').addEventListener('click', clearOrder);
     document.getElementById('pay-card').addEventListener('click', ()=> openPayment('Kartenzahlung'));
     document.getElementById('pay-cash').addEventListener('click', ()=> openPayment('Barzahlung'));
     document.getElementById('book-table').addEventListener('click', ()=>{
-      // direct booking flow -> require signature and create invoice-like record
       if(cart.length===0){ alert('Wähle zuerst Produkte.'); return; }
       openSignature({received: null, method: 'Tisch-Buchung'});
     });
 
-    // start
-    renderCategories(); renderProducts(data.categories[0]); renderCart();
-    document.getElementById('year').textContent = new Date().getFullYear();
+    // --- Start ---
+    renderCategories(); renderProducts(data.categories[0]); renderCart(); document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
