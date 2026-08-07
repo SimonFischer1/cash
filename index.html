@@ -1,1222 +1,142 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Surf Club POS</title>
-<script> https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js
-
-/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-body{
-background:#f2f4f7;
-height:100vh;
-display:flex;
-overflow:hidden;
-}
-
-.left{
-width:70%;
-padding:20px;
-overflow-y:auto;
-}
-
-.right{
-width:30%;
-background:white;
-border-left:1px solid #ddd;
-display:flex;
-flex-direction:column;
-}
-
-.header{
-background:#00A3FF;
-color:white;
-padding:20px;
-border-radius:15px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
-}
-
-.company-name{
-font-size:28px;
-font-weight:bold;
-}
-
-.employee-area{
-display:flex;
-align-items:center;
-gap:10px;
-}
-
-.employee-area input{
-padding:10px;
-border:none;
-border-radius:10px;
-width:180px;
-}
-
-.tabs{
-display:flex;
-gap:10px;
-margin-bottom:20px;
-flex-wrap:wrap;
-}
-
-.tabs button{
-background:white;
-padding:15px 25px;
-font-weight:bold;
-border:none;
-border-radius:12px;
-cursor:pointer;
-box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-
-.tabs button:hover{
-background:#e7f5ff;
-}
-
-.products{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-gap:15px;
-}
-
-.product{
-background:white;
-padding:20px;
-border-radius:15px;
-cursor:pointer;
-text-align:center;
-box-shadow:0 2px 10px rgba(0,0,0,0.08);
-transition:0.2s;
-}
-
-.product:hover{
-transform:translateY(-3px);
-background:#f0f9ff;
-}
-
-.product h3{
-margin-bottom:10px;
-}
-
-.product-price{
-font-size:18px;
-font-weight:bold;
-color:#00A3FF;
-}
-
-.cart{
-flex:1;
-padding:20px;
-overflow-y:auto;
-}
-
-.cart-title{
-font-size:24px;
-font-weight:bold;
-margin-bottom:15px;
-}
-
-.cart-item{
-display:flex;
-justify-content:space-between;
-align-items:center;
-background:#fafafa;
-padding:10px;
-border-radius:10px;
-margin-bottom:10px;
-border:1px solid #ececec;
-}
-
-.cart-left{
-display:flex;
-align-items:center;
-gap:10px;
-}
-
-.delete-btn{
-background:red;
-color:white;
-width:28px;
-height:28px;
-border:none;
-border-radius:50%;
-font-weight:bold;
-cursor:pointer;
-}
-
-.total{
-padding:20px;
-border-top:1px solid #ddd;
-font-size:28px;
-font-weight:bold;
-}
-
-.payment-area{
-padding:20px;
-}
-
-.payment-btn{
-padding:12px;
-border:none;
-border-radius:10px;
-cursor:pointer;
-font-weight:bold;
-margin-right:5px;
-margin-bottom:10px;
-}
-
-.card-btn{
-background:#34c759;
-color:white;
-}
-
-.cash-btn{
-background:#ff9500;
-color:white;
-}
-
-.print-btn{
-background:#00A3FF;
-color:white;
-width:100%;
-margin-top:10px;
-}
-
-.cancel-btn{
-background:#d32f2f;
-color:white;
-width:100%;
-margin-top:10px;
-}
-
-.free-btn{
-background:#6c5ce7;
-color:white;
-width:100%;
-margin-top:10px;
-}
-
-.cash-options{
-display:none;
-margin-top:10px;
-}
-
-.cash-options button{
-padding:10px;
-margin:3px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-background:#eee;
-}
-
-.change-box{
-margin-top:10px;
-font-size:16px;
-font-weight:bold;
-}
-
-.selected-payment{
-margin-top:10px;
-font-size:16px;
-font-weight:bold;
-color:#00A3FF;
-}
-
-</style>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cash — Modern UI</title>
+  <!-- Inter Webfont for a SumUp-like feel -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-
-<div class="left">
-
-<div class="header">
-
-<div class="company-name">
-SURF CLUB POS
-</div>
-
-<div class="employee-area">
-
-<label>Mitarbeiter</label>
-
-<input
-id="employee"
-value="Simon">
-
-</div>
-
-</div>
-
-<div class="tabs">
-
-<button onclick="showCategory('Ausrüstung')">
-Ausrüstung
-</button>
-
-<button onclick="showCategory('Kleidung')">
-Kleidung
-</button>
-
-<button onclick="showCategory('Getränke')">
-Getränke
-</button>
-
-<button onclick="showCategory('Essen')">
-Essen
-</button>
-
-</div>
-
-<div
-class="products"
-id="products">
-</div>
-
-</div>
-
-<div class="right">
-
-<div class="cart">
-
-<div class="cart-title">
-Bon
-</div>
-
-<div id="cartItems">
-</div>
-
-</div>
-
-<div class="total">
-Gesamt:
-<span id="total">
-0.00 €
-</span>
-</div>
-
-<div class="payment-area">
-
-<button
-class="payment-btn card-btn"
-onclick="setPayment('Kartenzahlung')">
-Kartenzahlung
-</button>
-
-<button
-class="payment-btn cash-btn"
-onclick="activateCash()">
-Barzahlung
-</button>
-
-<div
-class="selected-payment"
-id="paymentDisplay">
-Keine Zahlungsart gewählt
-</div>
-
-<div
-class="cash-options"
-id="cashOptions">
-
-<input
-type="number"
-step="0.01"
-id="cashInput"
-placeholder="Erhaltenen Betrag eingeben"
-style="
-width:100%;
-padding:12px;
-border:1px solid #ddd;
-border-radius:10px;
-font-size:18px;
-margin-bottom:10px;
-">
-
-<button
-onclick="calculateChange()"
-style="
-width:100%;
-background:#34c759;
-color:white;
-padding:12px;
-border:none;
-border-radius:10px;
-font-size:16px;
-font-weight:bold;
-">
-Rückgeld berechnen
-</button>
-
-</div>
-
-<div
-class="change-box"
-id="changeBox">
-</div>
-
-<button
-class="free-btn"
-onclick="addCustomItem()">
-Freier Artikel
-</button>
-
-<button
-class="print-btn"
-onclick="printReceipt()">
-BON DRUCKEN
-</button>
-
-<button
-class="cancel-btn"
-onclick="cancelReceipt()">
-BON STORNIEREN
-</button>
-
-</div>
-
-</div>
-
-<script>
-
-const products = {
-
-Ausrüstung:[
-
-{
-name:"Wakeboard",
-price:20,
-tax:19
-},
-
-{
-name:"Weste",
-price:10,
-tax:19
-},
-
-{
-name:"Helm",
-price:7.50,
-tax:19
-},
-
-{
-name:"Leash",
-price:5,
-tax:19
-},
-
-{
-name:"Schuhe",
-price:7.50,
-tax:19
-},
-
-{
-name:"1 Stunde Anlage",
-price:25,
-tax:19
-},
-
-{
-name:"2 Stunden Anlage",
-price:45,
-tax:19
-},
-
-{
-name:"3 Stunden Anlage",
-price:60,
-tax:19
-},
-
-{
-name:"4 Stunden Anlage",
-price:75,
-tax:19
-},
-
-{
-name:"5 Stunden Anlage",
-price:90,
-tax:19
-},
-
-{
-name:"6 Stunden Anlage",
-price:100,
-tax:19
-}
-
-],
-
-Kleidung:[
-
-{
-name:"T-Shirt Herren",
-price:25,
-tax:19
-},
-
-
-{
-name:"T-Shirt Damen",
-price:25,
-tax:19
-},
-  
-{
-name:"Hoodie Herren",
-price:59,
-tax:19
-},
-  
-{
-name:"Hoodie Damen",
-price:59,
-tax:19
-},
-  
-{
-name:"Hose",
-price:49,
-tax:19
-},
-
-{
-name:"Poncho",
-price:39,
-tax:19
-},
-
-{
-name:"Cap",
-price:25,
-tax:19
-},
-
-{
-name:"Mütze",
-price:20,
-tax:19
-},
-
-{
-name:"Sonnenbrille",
-price:30,
-tax:19
-}
-
-],
-
-Getränke:[
-
-{
-name:"Cola",
-price:3.50,
-tax:7
-},
-
-{
-name:"Fanta",
-price:3.50,
-tax:7
-},
-
-{
-name:"Sprite",
-price:3.50,
-tax:7
-},
-
-{
-name:"Kaffee",
-price:2.50,
-tax:7
-},
-
-{
-name:"Espresso",
-price:1.50,
-tax:7
-},
-
-{
-name:"Latte Macchiato",
-price:3.50,
-tax:7
-}
-
-],
-
-Essen:[
-
-{
-name:"Breze",
-price:2.50,
-tax:7
-},
-
-{
-name:"Brötchen Käse",
-price:4.50,
-tax:7
-},
-
-{
-name:"Brötchen Schinken",
-price:4.90,
-tax:7
-},
-
-{
-name:"Brötchen Salami",
-price:4.90,
-tax:7
-},
-
-{
-name:"Brötchen Vegetarisch",
-price:4.50,
-tax:7
-},
-
-{
-name:"Brötchen Vegan",
-price:4.50,
-tax:7
-}
-
-]
-
-};
-
-let cart = [];
-let paymentType = "";
-let amountReceived = 0;
-
-showCategory("Ausrüstung");
-
-function showCategory(category){
-
-const container =
-document.getElementById("products");
-
-container.innerHTML = "";
-
-products[category].forEach(product=>{
-
-container.innerHTML += `
-
-<div
-class="product"
-onclick="addProduct('${product.name}','${category}')">
-
-<h3>${product.name}</h3>
-
-<div class="product-price">
-${product.price.toFixed(2)} €
-</div>
-
-</div>
-
-`;
-
-});
-
-}
-
-function addProduct(name,category){
-
-const product =
-products[category].find(
-p=>p.name===name
-);
-
-let existing =
-cart.find(
-item=>item.name===name
-);
-
-if(existing){
-
-existing.qty++;
-
-}else{
-
-cart.push({
-
-name:product.name,
-price:product.price,
-tax:product.tax,
-qty:1
-
-});
-
-}
-
-renderCart();
-
-}
-
-function removeProduct(name){
-
-let item =
-cart.find(
-x=>x.name===name
-);
-
-if(!item) return;
-
-item.qty--;
-
-if(item.qty <= 0){
-
-cart =
-cart.filter(
-x=>x.name!==name
-);
-
-}
-
-renderCart();
-
-}
-
-function renderCart(){
-
-let html = "";
-
-let total = 0;
-
-let tax7 = 0;
-let tax19 = 0;
-
-cart.forEach(item=>{
-
-const rowTotal =
-item.price * item.qty;
-
-total += rowTotal;
-
-if(item.tax === 7){
-
-tax7 +=
-rowTotal -
-(rowTotal / 1.07);
-
-}
-
-if(item.tax === 19){
-
-tax19 +=
-rowTotal -
-(rowTotal / 1.19);
-
-}
-
-html += `
-
-<div class="cart-item">
-
-<div class="cart-left">
-
-<button
-class="delete-btn"
-onclick="removeProduct('${item.name}')">
-
-X
-
-</button>
-
-<div>
-
-<strong>
-${item.qty}x
-</strong>
-
-${item.name}
-
-<br>
-
-<small>
-MwSt.
-${item.tax}%
-</small>
-
-</div>
-
-</div>
-
-<div>
-
-${rowTotal.toFixed(2)} €
-
-</div>
-
-</div>
-
-`;
-
-});
-
-html += `
-
-<hr style="margin-top:10px;">
-
-<div style="margin-top:10px;">
-MwSt. 7%:
-${tax7.toFixed(2)} €
-</div>
-
-<div>
-MwSt. 19%:
-${tax19.toFixed(2)} €
-</div>
-
-`;
-
-document.getElementById(
-"cartItems"
-).innerHTML = html;
-
-document.getElementById(
-"total"
-).innerText =
-total.toFixed(2) + " €";
-
-}
-
-function addCustomItem(){
-
-const name =
-prompt("Artikelname");
-
-if(!name) return;
-
-const price =
-parseFloat(
-prompt("Preis in Euro")
-);
-
-if(isNaN(price))
-return;
-
-const tax =
-parseInt(
-prompt("Steuersatz (7 oder 19)")
-);
-
-cart.push({
-
-name:name,
-price:price,
-tax:tax,
-qty:1
-
-});
-
-renderCart();
-
-}
-
-function setPayment(type){
-
-paymentType = type;
-
-document.getElementById(
-"paymentDisplay"
-).innerText =
-"Zahlungsart: " + type;
-
-}
-
-function activateCash(){
-
-setPayment(
-"Barzahlung"
-);
-
-document.getElementById(
-"cashOptions"
-).style.display =
-"block";
-
-}
-
-function calculateChange(){
-
-const total =
-parseFloat(
-document.getElementById("total")
-.innerText.replace(" €","")
-);
-
-const received =
-parseFloat(
-document.getElementById("cashInput").value
-);
-
-if(isNaN(received)){
-
-alert(
-"Bitte Betrag eingeben."
-);
-
-return;
-
-}
-
-amountReceived = received;
-
-const change =
-received - total;
-
-document.getElementById(
-"changeBox"
-).innerHTML =
-
-`
-<div style="
-background:#f5f5f5;
-padding:10px;
-border-radius:10px;
-margin-top:10px;
-">
-
-Erhalten:
-<strong>
-${received.toFixed(2)} €
-</strong>
-
-<br><br>
-
-Rückgeld:
-<strong style="
-color:#34c759;
-">
-${change.toFixed(2)} €
-</strong>
-
-</div>
-`;
-
-}
-  
-function cashPay(amount){
-
-amountReceived = amount;
-
-const total =
-parseFloat(
-document.getElementById("total")
-.innerText.replace(" €","")
-);
-
-const change =
-amount - total;
-
-document.getElementById(
-"changeBox"
-).innerHTML =
-
-`
-Erhalten:
-${amount.toFixed(2)} €
-<br>
-
-Rückgeld:
-${change.toFixed(2)} €
-`;
-
-}
-
-function cancelReceipt(){
-
-if(
-confirm(
-"Bon wirklich stornieren?"
-)
-){
-
-cart = [];
-
-paymentType = "";
-
-amountReceived = 0;
-
-document.getElementById(
-"changeBox"
-).innerHTML = "";
-
-document.getElementById(
-"paymentDisplay"
-).innerText =
-"Keine Zahlungsart gewählt";
-
-renderCart();
-
-}
-
-}
-
-function printReceipt(){
-
-const employee =
-document.getElementById(
-"employee"
-).value;
-
-const total =
-document.getElementById(
-"total"
-).innerText;
-
-let tax7 = 0;
-let tax19 = 0;
-
-let rows = "";
-
-cart.forEach(item=>{
-
-const rowTotal =
-item.price * item.qty;
-
-if(item.tax === 7){
-
-tax7 +=
-rowTotal -
-(rowTotal / 1.07);
-
-}
-
-if(item.tax === 19){
-
-tax19 +=
-rowTotal -
-(rowTotal / 1.19);
-
-}
-
-rows += `
-
-<tr>
-
-<td>
-${item.qty}
-</td>
-
-<td>
-${item.name}
-</td>
-
-<td>
-${item.tax}%
-</td>
-
-<td>
-${rowTotal.toFixed(2)} €
-</td>
-
-</tr>
-
-`;
-
-});
-
-const totalValue =
-parseFloat(
-total.replace(" €","")
-);
-
-const change =
-amountReceived - totalValue;
-
-const printWindow =
-window.open(
-"",
-"_blank"
-);
-
-printWindow.document.write(`
-
-<html>
-
-<head>
-
-<title>
-Surf Club Bon
-</title>
-
-<style>
-
-body{
-font-family:Arial;
-padding:20px;
-}
-
-h1{
-text-align:center;
-margin-bottom:10px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:10px;
-}
-
-th,td{
-border:1px solid #000;
-padding:6px;
-text-align:left;
-}
-
-.summary{
-margin-top:15px;
-}
-
-.footer{
-margin-top:20px;
-text-align:center;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<h1>
-SURF CLUB
-</h1>
-
-<p>
-
-Datum:
-${new Date().toLocaleDateString("de-DE")}
-
-<br>
-
-Uhrzeit:
-${new Date().toLocaleTimeString("de-DE")}
-
-<br>
-
-Mitarbeiter:
-${employee}
-
-</p>
-
-<table>
-
-<tr>
-
-<th>Menge</th>
-
-<th>Produkt</th>
-
-<th>MwSt</th>
-
-<th>Preis</th>
-
-</tr>
-
-${rows}
-
-</table>
-
-<div class="summary">
-
-<h2>
-Gesamt:
-${total}
-</h2>
-
-<p>
-Zahlungsart:
-${paymentType}
-</p>
-
-<p>
-Erhalten:
-${amountReceived.toFixed(2)} €
-</p>
-
-<p>
-Rückgeld:
-${change.toFixed(2)} €
-</p>
-
-<p>
-MwSt 7%:
-${tax7.toFixed(2)} €
-</p>
-
-<p>
-MwSt 19%:
-${tax19.toFixed(2)} €
-</p>
-
-</div>
-
-<div class="footer">
-
-Vielen Dank für Ihren Besuch!
-Ihr Surf Club TEAM!
-
-<br><br>
-
-<canvas id="qrcode"></canvas>
-
-</div>
-
-https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js\/script>
-
-<script>
-
-QRCode.toCanvas(
-document.getElementById("qrcode"),
-"Surf Club Bon | ${new Date().toLocaleString('de-DE')} | ${employee}"
-);
-
-window.print();
-
-<\/script>
-
-
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <a class="brand" href="#" aria-label="Cash — Startseite">
+        <div class="logo-mark" aria-hidden="true">C</div>
+        <span class="brand-name">Cash</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Hauptnavigation">
+        <a href="#features">Features</a>
+        <a href="#pricing">Preise</a>
+        <a href="#about">Über uns</a>
+        <button class="btn btn-outline" id="login">Login</button>
+      </nav>
+
+      <div class="header-actions">
+        <button class="btn btn-icon" id="theme-toggle" aria-label="Theme wechseln">🌗</button>
+        <button class="btn btn-primary" id="cta-top">Jetzt starten</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-inner">
+        <div class="hero-text">
+          <h1 id="hero-title">Finanzieren — klar, schnell, menschlich.</h1>
+          <p class="lead">Ein modernes Tool, das komplexe Entscheidungen vereinfacht. Intuitiv für Nutzer, performant für Entscheider.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#">Loslegen</a>
+            <a class="btn btn-ghost" href="#">Produkt-Tour</a>
+          </div>
+
+          <ul class="trust-list" aria-hidden="true">
+            <li>✓ Schnelle Entscheidungen</li>
+            <li>✓ Transparente Gebühren</li>
+            <li>✓ Anwenderzentriertes Design</li>
+          </ul>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <!-- Stylized mockup / illustration -->
+          <svg class="wave" viewBox="0 0 800 520" preserveAspectRatio="none" role="img" aria-hidden="true">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1">
+                <stop offset="0%" stop-color="var(--primary)" />
+                <stop offset="100%" stop-color="var(--accent)" />
+              </linearGradient>
+            </defs>
+            <rect width="100%" height="100%" rx="20" fill="url(#g1)"></rect>
+            <g transform="translate(24,24)">
+              <rect x="0" y="0" width="420" height="200" rx="12" fill="rgba(255,255,255,0.95)" />
+              <rect x="16" y="18" width="120" height="20" rx="6" fill="rgba(0,0,0,0.06)" />
+              <rect x="16" y="50" width="360" height="12" rx="6" fill="rgba(0,0,0,0.04)" />
+              <rect x="16" y="72" width="220" height="12" rx="6" fill="rgba(0,0,0,0.03)" />
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="features" aria-labelledby="features-title">
+      <div class="container">
+        <h2 id="features-title" class="section-title">Was wir besser machen</h2>
+        <div class="cards">
+          <article class="card">
+            <div class="card-ico">⚡</div>
+            <h3>Schnelle Entscheidungen</h3>
+            <p>Automatisierte Analysen, verständliche Ergebnisse — damit dein Team sofort handeln kann.</p>
+          </article>
+
+          <article class="card">
+            <div class="card-ico">🔍</div>
+            <h3>Volle Transparenz</h3>
+            <p>Detaillierte Gebühren- und Risikoübersichten, so dass Nutzer genau wissen, worauf sie sich einlassen.</p>
+          </article>
+
+          <article class="card">
+            <div class="card-ico">🤝</div>
+            <h3>Fokus auf Menschen</h3>
+            <p>Ein Interface, das Vertrauen schafft: ruhige Farben, klare Typografie und konsistente Interaktionen.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing" class="cta-section">
+      <div class="container">
+        <div class="cta-card">
+          <h3>Bereit für einen Testlauf?</h3>
+          <p>Starte in Minuten — keine langen Integrationszyklen. Kostenlose Demo und persönlicher Support.</p>
+          <div class="cta-actions">
+            <a class="btn btn-primary" href="#">Demo anfragen</a>
+            <a class="btn btn-outline" href="#">Kontakt</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer-inner">
+      <div>© <span id="year"></span> Cash</div>
+      <div class="footer-links">
+        <a href="#">Datenschutz</a>
+        <a href="#">Impressum</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Jahr setzen
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Theme Toggle (persisted in localStorage)
+    const root = document.documentElement;
+    const toggle = document.getElementById('theme-toggle');
+    const stored = localStorage.getItem('cash:theme');
+    if(stored === 'dark') root.classList.add('theme-dark');
+
+    toggle.addEventListener('click', ()=>{
+      const dark = root.classList.toggle('theme-dark');
+      localStorage.setItem('cash:theme', dark ? 'dark' : 'light');
+    });
+
+    // Top CTA focus for keyboard users
+    document.getElementById('cta-top').addEventListener('click', ()=>{
+      document.querySelector('.lead').scrollIntoView({behavior:'smooth'});
+    });
+  </script>
 </body>
-
-</html>
-
-`);
-
-printWindow.document.close();
-
-}
-
-</script>
-
-</body>
-
 </html>
