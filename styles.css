@@ -96,3 +96,34 @@ a:focus, button:focus{outline:none;box-shadow:0 0 0 4px rgba(0,0,0,0.06)}
   .product-grid{grid-template-columns:repeat(5,1fr)}
   .layout{grid-template-columns:1fr 380px}
 }
+
+/* --- Safe area + iPad-specific orientation tweaks --- */
+:root { --safe-bottom: env(safe-area-inset-bottom, 0px); --safe-top: env(safe-area-inset-top, 0px); }
+/* Ensure bottom-summary and drawers respect iOS safe area */
+.bottom-summary { padding-bottom: calc(12px + var(--safe-bottom)); }
+.order-drawer { padding-bottom: calc(12px + var(--safe-bottom)); }
+
+/* Tablet-specific: iPad portrait (typical 768px width) */
+@media (min-width:768px) and (max-width:1024px) and (orientation:portrait) {
+  .layout { grid-template-columns: 1fr 340px; }
+  .product-grid { grid-template-columns: repeat(2,1fr); gap:16px; }
+  .order-drawer { height: calc(100vh - 120px); position:sticky; top:80px; }
+}
+
+/* Tablet landscape (incl. many iPads) */
+@media (min-width:768px) and (max-width:1366px) and (orientation:landscape) {
+  .layout { grid-template-columns: 1fr 360px; }
+  .product-grid { grid-template-columns: repeat(3,1fr); }
+}
+
+/* iPad Pro 12.9" landscape (approx 1366px width) */
+@media (min-width:1200px) and (max-width:1400px) and (orientation:landscape) {
+  .product-grid { grid-template-columns: repeat(4,1fr); }
+  .layout { grid-template-columns: 1fr 380px; }
+}
+
+/* Pointer coarse (touch devices) — increase touch targets */
+@media (pointer: coarse) {
+  .product-card { padding:20px; min-height:96px; }
+  .btn { padding:12px 14px; }
+}
