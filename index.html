@@ -274,7 +274,7 @@
         <h4>Unterschrift</h4>
         <div><img src='${signature}' style='max-width:320px;border:1px solid #eee'></div>
         <footer style='margin-top:18px;color:#666'>Bedient von: ${escapeHtml(employee)} — ${company}</footer>
-        <script>window.onload = function(){ setTimeout(()=>{ window.print(); },120); };</script>
+        <script>window.onload = function(){ setTimeout(function(){ window.print(); },120); };<\/script>
         </body></html>`;
       const w = window.open('','_blank');
       if(!w){ alert('Popup blockiert. Erlaube Popups für diese Seite.'); return; }
