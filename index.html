@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,viewport-fit=cover,user-scalable=no" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
   <title>SURF CLUB POS — Cash</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
@@ -13,508 +13,527 @@
       <div class="topbar">
         <a class="brand" href="#">
           <div class="logo">SC</div>
-          <div>
+          <div class="brand-text">
             <div class="brand-name">SURF CLUB POS</div>
             <div class="brand-sub">Schnell · Klar · Schön</div>
           </div>
         </a>
         <div class="top-controls">
-          <label class="label-inline">Mitarbeiter</label>
-          <input id="employee" class="staff-input" value="Simon">
-          <button id="book-table" class="btn btn-sm" type="button">📋</button>
-          <button id="start-btn" class="btn btn-primary btn-sm" type="button">✓</button>
+          <input id="employee" class="staff-input" value="Simon" placeholder="Mitarbeiter">
+          <button id="book-table" class="btn-icon" type="button" title="Tisch buchen">📋</button>
+          <button id="start-btn" class="btn-primary" type="button">✓</button>
         </div>
       </div>
     </header>
 
-    <main class="layout" id="main-layout">
-      <!-- Tab Navigation for Mobile -->
-      <div class="mobile-tabs" id="mobile-tabs">
-        <button class="tab-btn active" data-tab="products">Produkte</button>
-        <button class="tab-btn" data-tab="order">Bon</button>
+    <main class="layout">
+      <!-- Mobile Tab Navigation -->
+      <div class="mobile-nav">
+        <button class="nav-tab active" data-tab="products">Produkte</button>
+        <button class="nav-tab" data-tab="order">Bon</button>
       </div>
 
-      <!-- Products Section -->
-      <section class="tab-content active" id="tab-products">
-        <div class="panel">
-          <div class="categories" role="tablist" id="categories"></div>
-          <div class="product-grid" id="product-grid" aria-live="polite"></div>
-        </div>
-      </section>
+      <!-- Products Tab -->
+      <div class="tab-pane active" id="tab-products">
+        <div class="categories" id="categories"></div>
+        <div class="product-grid" id="product-grid"></div>
+      </div>
 
-      <!-- Order Section -->
-      <aside class="tab-content order-drawer panel" id="tab-order">
+      <!-- Order Tab -->
+      <div class="tab-pane" id="tab-order">
         <div class="order-header">
-          <h3>Bon</h3>
-          <div class="order-controls">
-            <button id="clear-order" class="icon-btn" title="Bon leeren" aria-label="Bon leeren" type="button">🧹</button>
-          </div>
+          <h2>Bon</h2>
+          <button id="clear-order" class="btn-icon" type="button" title="Bon leeren">🧹</button>
         </div>
-
-        <div class="order-list" id="order-list">
-          <div class="empty">Keine Artikel</div>
-        </div>
-
+        <div class="order-items" id="order-list"></div>
         <div class="order-summary">
-          <div class="tax-row"><span>MwSt. 7%</span><span id="vat7">0,00 €</span></div>
-          <div class="tax-row"><span>MwSt. 19%</span><span id="vat19">0,00 €</span></div>
-          <hr>
-          <div class="total-row"><span>Gesamt</span><strong id="total">0,00 €</strong></div>
+          <div class="summary-row"><span>MwSt. 7%</span><span id="vat7">0,00 €</span></div>
+          <div class="summary-row"><span>MwSt. 19%</span><span id="vat19">0,00 €</span></div>
+          <div class="summary-divider"></div>
+          <div class="summary-total"><span>Gesamt</span><span id="total">0,00 €</span></div>
         </div>
-
-        <div class="order-actions">
-          <button id="pay-card" class="btn btn-primary" type="button">Karte</button>
-          <button id="pay-cash" class="btn btn-outline" type="button">Bar</button>
+        <div class="order-buttons">
+          <button id="pay-card" class="btn-action btn-primary" type="button">Karte</button>
+          <button id="pay-cash" class="btn-action" type="button">Bar</button>
         </div>
-      </aside>
+      </div>
     </main>
 
     <footer class="site-footer">
-      <div class="footer-inner">
-        <div>© <span id="year"></span> Cash</div>
-      </div>
+      <div>© <span id="year"></span> SURF CLUB POS</div>
     </footer>
   </div>
 
-  <!-- Modals -->
-  <div id="modal-root"></div>
+  <!-- Modal Container -->
+  <div id="modal-container"></div>
 
   <script>
-    // --- Data model ---
     const data = {
       categories: ['Ausrüstung','Kleidung','Getränke','Essen'],
       products: {
-        'Ausrüstung':[ {id:'p1',name:'Wakeboard',price:20.00,vat:19}, {id:'p2',name:'Weste',price:10.00,vat:19} ],
-        'Kleidung':[ {id:'p3',name:'T-Shirt Herren',price:25.00,vat:19} ],
-        'Getränke':[ {id:'p4',name:'Cola',price:3.50,vat:7}, {id:'p5',name:'Fanta',price:3.50,vat:7} ],
-        'Essen':[ {id:'p6',name:'Breze',price:2.50,vat:7}, {id:'p7',name:'Brötchen Käse',price:4.50,vat:7}, {id:'p8',name:'Brötchen Schinken',price:4.90,vat:7} ]
+        'Ausrüstung': [{id:'p1',name:'Wakeboard',price:20.00,vat:19}, {id:'p2',name:'Weste',price:10.00,vat:19}],
+        'Kleidung': [{id:'p3',name:'T-Shirt Herren',price:25.00,vat:19}],
+        'Getränke': [{id:'p4',name:'Cola',price:3.50,vat:7}, {id:'p5',name:'Fanta',price:3.50,vat:7}],
+        'Essen': [{id:'p6',name:'Breze',price:2.50,vat:7}, {id:'p7',name:'Brötchen Käse',price:4.50,vat:7}, {id:'p8',name:'Brötchen Schinken',price:4.90,vat:7}]
       }
     };
 
-    // --- State ---
     let cart = [];
     let bookedTables = {};
-    let currentTable = null;
 
-    function formatMoney(n){ return (Math.round(n*100)/100).toFixed(2).replace('.',',') + ' €'; }
+    // Utils
+    function fmt(n) { return (Math.round(n*100)/100).toFixed(2).replace('.',',') + ' €'; }
 
-    // --- Mobile Tab Switching ---
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tabName = btn.dataset.tab;
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(`tab-${tabName}`).classList.add('active');
+    // Tab Navigation
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
       });
     });
 
-    // --- Render categories ---
-    const categoriesEl = document.getElementById('categories');
-    function renderCategories(){
-      categoriesEl.innerHTML = '';
-      data.categories.forEach((c, idx)=>{
+    // Categories
+    function renderCats() {
+      const el = document.getElementById('categories');
+      el.innerHTML = '';
+      data.categories.forEach((c, i) => {
         const btn = document.createElement('button');
-        btn.className = 'cat' + (idx===0? ' active':'');
-        btn.type = 'button';
+        btn.className = 'cat-btn' + (i === 0 ? ' active' : '');
         btn.textContent = c;
-        btn.dataset.category = c;
-        btn.setAttribute('role','tab');
-        btn.setAttribute('aria-selected', idx===0 ? 'true':'false');
-        btn.addEventListener('click', ()=>{
-          document.querySelectorAll('.cat').forEach(x=>{ x.classList.remove('active'); x.setAttribute('aria-selected','false'); });
-          btn.classList.add('active'); btn.setAttribute('aria-selected','true');
-          renderProducts(c);
+        btn.type = 'button';
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
+          btn.classList.add('active');
+          renderProds(c);
         });
-        categoriesEl.appendChild(btn);
+        el.appendChild(btn);
       });
     }
 
-    // --- Render products ---
-    const productGrid = document.getElementById('product-grid');
-    function renderProducts(category){
-      const list = data.products[category] || [];
-      productGrid.innerHTML = '';
-      list.forEach(p=>{
-        const card = document.createElement('button');
-        card.className = 'product-card';
-        card.type = 'button';
-        card.innerHTML = `<div class="p-title">${p.name}</div><div class="p-price">${formatMoney(p.price)}</div>`;
-        card.addEventListener('click', ()=>{ addToCart(p); pulse(card); });
-        productGrid.appendChild(card);
+    // Products
+    function renderProds(cat) {
+      const grid = document.getElementById('product-grid');
+      grid.innerHTML = '';
+      (data.products[cat] || []).forEach(p => {
+        const btn = document.createElement('button');
+        btn.className = 'product-btn';
+        btn.type = 'button';
+        btn.innerHTML = `<div>${p.name}</div><div class="price">${fmt(p.price)}</div>`;
+        btn.addEventListener('click', () => {
+          addCart(p);
+          btn.classList.add('pulse');
+          setTimeout(() => btn.classList.remove('pulse'), 300);
+        });
+        grid.appendChild(btn);
       });
     }
 
-    // --- Cart operations ---
-    function addToCart(product){
-      const price = Number(product.price) || 0;
-      const existing = cart.find(i=>i.id===product.id);
-      if(existing){ existing.qty += 1; }
-      else { cart.push({ id: product.id, name: product.name, price: price, vat: product.vat, qty: 1 }); }
+    // Cart
+    function addCart(p) {
+      const ex = cart.find(i => i.id === p.id);
+      if (ex) ex.qty++;
+      else cart.push({...p, qty: 1});
       renderCart();
     }
 
-    function renderCart(){
-      const orderList = document.getElementById('order-list');
-      orderList.innerHTML = '';
-      if(cart.length===0){ orderList.innerHTML = '<div class="empty">Keine Artikel</div>'; updateTotals(); return; }
-      cart.forEach(item=>{
-        const row = document.createElement('div'); row.className = 'order-item';
+    function renderCart() {
+      const list = document.getElementById('order-list');
+      list.innerHTML = '';
+      if (!cart.length) {
+        list.innerHTML = '<div class="empty-cart">Keine Artikel</div>';
+        updateTotals();
+        return;
+      }
+      cart.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'order-row';
         row.innerHTML = `
-          <div class="left"><strong>${item.qty}x</strong> ${item.name}</div>
-          <div class="right">
-            <div>${formatMoney(item.price * item.qty)}</div>
-            <div class="row-actions">
-              <button class='small' type='button' data-action='inc' data-id='${item.id}'>+</button>
-              <button class='small' type='button' data-action='dec' data-id='${item.id}'>−</button>
+          <div class="order-left">
+            <div class="order-qty">${item.qty}x</div>
+            <div class="order-name">${item.name}</div>
+          </div>
+          <div class="order-right">
+            <div class="order-price">${fmt(item.price * item.qty)}</div>
+            <div class="order-controls">
+              <button class="btn-mini" data-id="${item.id}" data-op="inc">+</button>
+              <button class="btn-mini" data-id="${item.id}" data-op="dec">−</button>
             </div>
           </div>`;
-        orderList.appendChild(row);
+        list.appendChild(row);
       });
-      orderList.querySelectorAll('button.small').forEach(btn=>{
-        btn.addEventListener('click',(e)=>{
-          const action = btn.dataset.action; const id = btn.dataset.id;
-          const it = cart.find(i=>i.id===id); if(!it) return;
-          if(action === 'inc') it.qty++; else { it.qty--; if(it.qty<=0) cart = cart.filter(x=>x.id!==id); }
+      list.querySelectorAll('.btn-mini').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          const op = btn.dataset.op;
+          const it = cart.find(i => i.id === id);
+          if (!it) return;
+          if (op === 'inc') it.qty++;
+          else {
+            it.qty--;
+            if (it.qty <= 0) cart = cart.filter(i => i.id !== id);
+          }
           renderCart();
         });
       });
       updateTotals();
     }
 
-    function updateTotals(){
-      const vat7 = cart.filter(i=>i.vat===7).reduce((s,i)=>s + (i.price*i.qty - (i.price*i.qty)/1.07),0);
-      const vat19 = cart.filter(i=>i.vat===19).reduce((s,i)=>s + (i.price*i.qty - (i.price*i.qty)/1.19),0);
-      const total = cart.reduce((s,i)=>s + i.price*i.qty,0);
-      document.getElementById('vat7').textContent = formatMoney(vat7);
-      document.getElementById('vat19').textContent = formatMoney(vat19);
-      document.getElementById('total').textContent = formatMoney(total);
-      return { total, vat7, vat19 };
+    function updateTotals() {
+      const v7 = cart.filter(i => i.vat === 7).reduce((s, i) => s + (i.price*i.qty - (i.price*i.qty)/1.07), 0);
+      const v19 = cart.filter(i => i.vat === 19).reduce((s, i) => s + (i.price*i.qty - (i.price*i.qty)/1.19), 0);
+      const tot = cart.reduce((s, i) => s + i.price*i.qty, 0);
+      document.getElementById('vat7').textContent = fmt(v7);
+      document.getElementById('vat19').textContent = fmt(v19);
+      document.getElementById('total').textContent = fmt(tot);
+      return {tot, v7, v19};
     }
 
-    function clearOrder(){ if(confirm('Bon wirklich leeren?')){ cart = []; renderCart(); } }
+    // Modals
+    const modal = document.getElementById('modal-container');
 
-    function pulse(el){ el.classList.add('added'); setTimeout(()=>el.classList.remove('added'),380); }
+    function closeModal() { modal.innerHTML = ''; }
 
-    // --- Payment flows ---
-    const modalRoot = document.getElementById('modal-root');
-
-    function openCashPayment(){
-      const { total } = updateTotals();
-      if(total <= 0){ alert('Wähle zuerst Produkte aus.'); return; }
-      modalRoot.innerHTML = `
-        <div class='modal-backdrop'>
-          <div class='modal'>
+    function showCashPayment() {
+      const {tot} = updateTotals();
+      if (tot <= 0) { alert('Produkte wählen'); return; }
+      modal.innerHTML = `
+        <div class="modal-bg">
+          <div class="modal-box">
             <h3>Barzahlung</h3>
-            <div class='field'><label>Betrag</label><div class='big'>${formatMoney(total)}</div></div>
-            <div class='field'>
+            <div class="modal-field">
+              <label>Betrag</label>
+              <div class="modal-amount">${fmt(tot)}</div>
+            </div>
+            <div class="modal-field">
               <label>Erhalten</label>
-              <input id='pay-received' type='number' step='0.01' value='${total.toFixed(2)}' inputmode='decimal'>
+              <input type="number" id="cash-input" step="0.01" value="${tot.toFixed(2)}" inputmode="decimal">
             </div>
-            <div class='field'>
+            <div class="modal-field">
               <label>Rückgeld</label>
-              <div class='big' id='change-display'>${formatMoney(0)}</div>
+              <div class="modal-amount" id="cash-change">${fmt(0)}</div>
             </div>
-            <div class='modal-actions'>
-              <button id='confirm-pay' class='btn btn-primary' type='button'>Weiter</button>
-              <button id='cancel-pay' class='btn btn-outline' type='button'>Zurück</button>
+            <div class="modal-buttons">
+              <button class="btn-cancel" type="button">Zurück</button>
+              <button class="btn-primary" type="button">Weiter</button>
             </div>
           </div>
         </div>`;
-      const receivedInput = document.getElementById('pay-received');
-      const changeDisplay = document.getElementById('change-display');
-      function updateChange(){
-        const received = parseFloat(receivedInput.value || 0);
-        const change = received - total;
-        changeDisplay.textContent = formatMoney(Math.max(0, change));
-      }
-      receivedInput.addEventListener('input', updateChange);
-      receivedInput.focus();
-      updateChange();
-      document.getElementById('cancel-pay').addEventListener('click', closeModal);
-      document.getElementById('confirm-pay').addEventListener('click', ()=>{
-        const received = parseFloat(document.getElementById('pay-received').value || 0);
+      
+      const inp = document.getElementById('cash-input');
+      const chg = document.getElementById('cash-change');
+      inp.addEventListener('input', () => {
+        const r = parseFloat(inp.value || 0);
+        chg.textContent = fmt(Math.max(0, r - tot));
+      });
+      inp.focus();
+      
+      document.querySelector('.btn-cancel').addEventListener('click', closeModal);
+      document.querySelector('.btn-primary').addEventListener('click', () => {
+        const rec = parseFloat(inp.value || 0);
         closeModal();
-        openSignature({received, method: 'Barzahlung'});
+        showSignature({rec, met: 'Barzahlung'});
       });
     }
 
-    function openCardPayment(){
-      const { total } = updateTotals();
-      if(total <= 0){ alert('Wähle zuerst Produkte aus.'); return; }
-      modalRoot.innerHTML = `
-        <div class='modal-backdrop'>
-          <div class='modal'>
+    function showCardPayment() {
+      const {tot} = updateTotals();
+      if (tot <= 0) { alert('Produkte wählen'); return; }
+      modal.innerHTML = `
+        <div class="modal-bg">
+          <div class="modal-box">
             <h3>Kartenzahlung</h3>
-            <div class='field'><label>Betrag</label><div class='big'>${formatMoney(total)}</div></div>
-            <div class='modal-actions'>
-              <button id='confirm-pay' class='btn btn-primary' type='button'>Weiter</button>
-              <button id='cancel-pay' class='btn btn-outline' type='button'>Zurück</button>
+            <div class="modal-field">
+              <label>Betrag</label>
+              <div class="modal-amount">${fmt(tot)}</div>
+            </div>
+            <div class="modal-buttons">
+              <button class="btn-cancel" type="button">Zurück</button>
+              <button class="btn-primary" type="button">Weiter</button>
             </div>
           </div>
         </div>`;
-      document.getElementById('cancel-pay').addEventListener('click', closeModal);
-      document.getElementById('confirm-pay').addEventListener('click', ()=>{
+      document.querySelector('.btn-cancel').addEventListener('click', closeModal);
+      document.querySelector('.btn-primary').addEventListener('click', () => {
         closeModal();
-        openSignature({received: total, method: 'Kartenzahlung'});
+        showSignature({rec: tot, met: 'Kartenzahlung'});
       });
     }
 
-    function openTableBooking(){
-      const { total } = updateTotals();
-      if(total <= 0){ alert('Wähle zuerst Produkte aus.'); return; }
-      modalRoot.innerHTML = `
-        <div class='modal-backdrop'>
-          <div class='modal'>
+    function showTableBooking() {
+      if (!cart.length) { alert('Produkte wählen'); return; }
+      modal.innerHTML = `
+        <div class="modal-bg">
+          <div class="modal-box">
             <h3>Tisch buchen</h3>
-            <div class='field'>
+            <div class="modal-field">
               <label>Tischnummer</label>
-              <input id='table-num' type='number' min='1' placeholder='z.B. 1, 2, 3...' inputmode='numeric'>
+              <input type="number" id="table-input" min="1" inputmode="numeric">
             </div>
-            <div class='modal-actions'>
-              <button id='confirm-table' class='btn btn-primary' type='button'>Buchen</button>
-              <button id='cancel-table' class='btn btn-outline' type='button'>Zurück</button>
+            <div class="modal-buttons">
+              <button class="btn-cancel" type="button">Zurück</button>
+              <button class="btn-primary" type="button">Buchen</button>
             </div>
           </div>
         </div>`;
-      document.getElementById('table-num').focus();
-      document.getElementById('cancel-table').addEventListener('click', closeModal);
-      document.getElementById('confirm-table').addEventListener('click', ()=>{
-        const tableNum = document.getElementById('table-num').value;
-        if(!tableNum){ alert('Tischnummer eingeben'); return; }
-        if(!bookedTables[tableNum]){ bookedTables[tableNum] = []; }
-        bookedTables[tableNum].push(cart.map(i=>({...i})));
-        alert(`Tisch ${tableNum} ✓`);
+      
+      const inp = document.getElementById('table-input');
+      inp.focus();
+      document.querySelector('.btn-cancel').addEventListener('click', closeModal);
+      document.querySelector('.btn-primary').addEventListener('click', () => {
+        const tbl = inp.value;
+        if (!tbl) { alert('Nummer eingeben'); return; }
+        if (!bookedTables[tbl]) bookedTables[tbl] = [];
+        bookedTables[tbl].push([...cart]);
+        alert(`Tisch ${tbl} ✓`);
         cart = [];
         renderCart();
         closeModal();
       });
     }
 
-    function openSignature(payment){
-      const { total, vat7, vat19 } = updateTotals();
-      const invoiceCart = cart.map(i=>({ ...i }));
+    function showSignature(pay) {
+      const {tot, v7, v19} = updateTotals();
+      const items = [...cart];
       
-      const itemsHtml = invoiceCart.map(i=>`<div class='sig-item'><span>${i.qty}x ${i.name}</span><span>${formatMoney(i.price * i.qty)}</span></div>`).join('');
+      const itemsHtml = items.map(i => `<div class="sig-item"><span>${i.qty}x ${i.name}</span><span>${fmt(i.price*i.qty)}</span></div>`).join('');
       
-      modalRoot.innerHTML = `
-        <div class='modal-backdrop'>
-          <div class='modal modal-signature'>
+      modal.innerHTML = `
+        <div class="modal-bg full">
+          <div class="modal-box modal-sig">
             <h3>Unterschrift</h3>
             
-            <div class='sig-summary'>
+            <div class="sig-order">
               ${itemsHtml}
-              <div style='border-top: 1px solid rgba(2,6,23,0.1); margin-top: 8px; padding-top: 8px;'>
-                <div class='sig-item'><span>MwSt. 7%</span><span>${formatMoney(vat7)}</span></div>
-                <div class='sig-item'><span>MwSt. 19%</span><span>${formatMoney(vat19)}</span></div>
-                <div class='sig-item' style='font-weight: 700;'><span>Gesamt</span><span>${formatMoney(total)}</span></div>
+              <div class="sig-totals">
+                <div class="sig-item"><span>MwSt. 7%</span><span>${fmt(v7)}</span></div>
+                <div class="sig-item"><span>MwSt. 19%</span><span>${fmt(v19)}</span></div>
+                <div class="sig-item sig-total"><span>Gesamt</span><span>${fmt(tot)}</span></div>
               </div>
             </div>
 
-            <div class='tip-section'>
-              <div class='tip-title'>TIP</div>
-              <div class='tip-options'>
-                <button class='tip-btn' data-tip='5'>5%</button>
-                <button class='tip-btn' data-tip='10'>10%</button>
-                <button class='tip-btn' data-tip='custom'>Individuell</button>
+            <div class="sig-tip">
+              <h4>TIP</h4>
+              <div class="tip-buttons">
+                <button class="tip-opt" data-val="5">5%</button>
+                <button class="tip-opt" data-val="10">10%</button>
+                <button class="tip-opt" data-val="custom">Individuell</button>
               </div>
-              <div class='tip-custom-section' id='tip-custom-section' style='display:none;'>
-                <div class='tip-custom-options'>
-                  <label><input type='radio' name='tip-custom-type' value='percent' checked> %</label>
-                  <label><input type='radio' name='tip-custom-type' value='euro'> €</label>
-                  <label><input type='radio' name='tip-custom-type' value='round'> Aufrunden</label>
+              <div id="tip-custom" class="tip-custom" style="display:none">
+                <div class="tip-types">
+                  <label><input type="radio" name="ttype" value="pct" checked> %</label>
+                  <label><input type="radio" name="ttype" value="eur"> €</label>
+                  <label><input type="radio" name="ttype" value="rnd"> Aufrunden</label>
                 </div>
-                <input id='tip-custom-value' type='number' step='0.01' placeholder='Wert' inputmode='decimal'>
-                <div id='tip-custom-preview'></div>
+                <input type="number" id="tip-val" step="0.01" inputmode="decimal">
+                <div id="tip-preview"></div>
               </div>
-              <div class='tip-total' id='tip-total-display'></div>
+              <div class="tip-total" id="tip-display">${fmt(tot)}</div>
             </div>
 
-            <div class='sign-area'><canvas id='sig-canvas'></canvas></div>
+            <div class="sig-canvas-box">
+              <canvas id="sig-canvas"></canvas>
+            </div>
             
-            <div class='sign-actions'>
-              <button id='sign-clear' class='btn btn-outline btn-sm' type='button'>Löschen</button>
-              <button id='sign-cancel' class='btn btn-outline btn-sm' type='button'>Zurück</button>
-              <button id='sign-confirm' class='btn btn-primary btn-sm' type='button'>OK</button>
+            <div class="modal-buttons">
+              <button class="btn-clear" type="button">Löschen</button>
+              <button class="btn-cancel" type="button">Zurück</button>
+              <button class="btn-primary" type="button">OK</button>
             </div>
           </div>
         </div>`;
       
       const canvas = document.getElementById('sig-canvas');
-      setupSignatureCanvas(canvas);
+      const ctx = canvas.getContext('2d');
       
-      let selectedTip = 0;
+      // Properly size canvas
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#0B1220';
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
       
-      function updateTipDisplay(){
-        const tip5 = total * 0.05;
-        const tip10 = total * 0.10;
-        document.querySelectorAll('.tip-btn[data-tip="5"]').forEach(b => b.textContent = `5%\n${formatMoney(tip5)}`);
-        document.querySelectorAll('.tip-btn[data-tip="10"]').forEach(b => b.textContent = `10%\n${formatMoney(tip10)}`);
-        const tipTotalEl = document.getElementById('tip-total-display');
-        if(selectedTip > 0){
-          tipTotalEl.textContent = `Total: ${formatMoney(total + selectedTip)}`;
+      let drawing = false;
+      let lastX = 0, lastY = 0;
+      
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        if (e.touches) {
+          return {x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top};
+        }
+        return {x: e.clientX - rect.left, y: e.clientY - rect.top};
+      }
+      
+      function down(e) {
+        e.preventDefault();
+        drawing = true;
+        const p = getPos(e);
+        lastX = p.x;
+        lastY = p.y;
+      }
+      
+      function move(e) {
+        if (!drawing) return;
+        e.preventDefault();
+        const p = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        lastX = p.x;
+        lastY = p.y;
+      }
+      
+      function up(e) {
+        drawing = false;
+      }
+      
+      canvas.addEventListener('mousedown', down);
+      canvas.addEventListener('mousemove', move);
+      window.addEventListener('mouseup', up);
+      canvas.addEventListener('touchstart', down);
+      canvas.addEventListener('touchmove', move);
+      window.addEventListener('touchend', up);
+      
+      let tip = 0;
+      
+      function updateTipDisplay() {
+        const disp = document.getElementById('tip-display');
+        if (tip > 0) {
+          disp.textContent = fmt(tot + tip);
         } else {
-          tipTotalEl.textContent = `Total: ${formatMoney(total)}`;
+          disp.textContent = fmt(tot);
         }
       }
-      updateTipDisplay();
       
-      document.querySelectorAll('.tip-btn').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          document.querySelectorAll('.tip-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tip-opt').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tip-opt').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          const tipType = btn.dataset.tip;
-          if(tipType === 'custom'){
-            document.getElementById('tip-custom-section').style.display = 'block';
-            document.getElementById('tip-custom-value').focus();
+          if (btn.dataset.val === 'custom') {
+            document.getElementById('tip-custom').style.display = 'block';
           } else {
-            document.getElementById('tip-custom-section').style.display = 'none';
-            selectedTip = total * (parseInt(tipType) / 100);
+            document.getElementById('tip-custom').style.display = 'none';
+            tip = tot * (parseFloat(btn.dataset.val) / 100);
             updateTipDisplay();
           }
         });
       });
       
-      document.getElementById('tip-custom-value').addEventListener('input', (e)=>{
-        const value = parseFloat(e.target.value || 0);
-        const customType = document.querySelector('input[name="tip-custom-type"]:checked').value;
-        const preview = document.getElementById('tip-custom-preview');
-        
-        if(customType === 'percent'){
-          selectedTip = total * (value / 100);
-          preview.textContent = `${value}% = ${formatMoney(selectedTip)}`;
-        } else if(customType === 'euro'){
-          selectedTip = value;
-          preview.textContent = `${formatMoney(value)}`;
-        } else if(customType === 'round'){
-          const rounded = Math.ceil(total / 5) * 5;
-          selectedTip = rounded - total;
-          preview.textContent = `${formatMoney(total)} → ${formatMoney(rounded)}`;
+      document.getElementById('tip-val').addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value || 0);
+        const ttype = document.querySelector('input[name="ttype"]:checked').value;
+        const prv = document.getElementById('tip-preview');
+        if (ttype === 'pct') {
+          tip = tot * (val / 100);
+          prv.textContent = `${val}% = ${fmt(tip)}`;
+        } else if (ttype === 'eur') {
+          tip = val;
+          prv.textContent = fmt(val);
+        } else if (ttype === 'rnd') {
+          const rnd = Math.ceil(tot / 5) * 5;
+          tip = rnd - tot;
+          prv.textContent = `${fmt(tot)} → ${fmt(rnd)}`;
         }
         updateTipDisplay();
       });
       
-      document.querySelectorAll('input[name="tip-custom-type"]').forEach(radio=>{
-        radio.addEventListener('change', ()=>{
-          document.getElementById('tip-custom-value').value = '';
-          document.getElementById('tip-custom-preview').textContent = '';
-          selectedTip = 0;
+      document.querySelectorAll('input[name="ttype"]').forEach(r => {
+        r.addEventListener('change', () => {
+          document.getElementById('tip-val').value = '';
+          document.getElementById('tip-preview').textContent = '';
+          tip = 0;
           updateTipDisplay();
         });
       });
       
-      document.getElementById('sign-clear').addEventListener('click', ()=>{ 
-        canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height); 
+      document.querySelector('.btn-clear').addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       });
-      document.getElementById('sign-cancel').addEventListener('click', closeModal);
-      document.getElementById('sign-confirm').addEventListener('click', ()=>{
-        const blank = getBlankDataUrl(canvas);
-        const dataUrl = canvas.toDataURL('image/png');
-        if(dataUrl === blank){ alert('Unterschrift erforderlich'); return; }
+      
+      document.querySelector('.btn-cancel').addEventListener('click', closeModal);
+      
+      document.querySelector('.btn-primary').addEventListener('click', () => {
+        const blank = document.createElement('canvas');
+        blank.width = canvas.width;
+        blank.height = canvas.height;
+        if (canvas.toDataURL() === blank.toDataURL()) {
+          alert('Unterschrift erforderlich');
+          return;
+        }
         closeModal();
-        const employee = document.getElementById('employee').value || '—';
-        const finalTotal = total + selectedTip;
-        generateInvoicePage({payment, signature:dataUrl, employee, invoiceCart, tip: selectedTip, finalTotal});
+        printInvoice({pay, sig: canvas.toDataURL('image/png'), emp: document.getElementById('employee').value || '—', items, tip, tot: tot + tip});
         cart = [];
         renderCart();
       });
     }
 
-    function closeModal(){ modalRoot.innerHTML = ''; }
-
-    function setupSignatureCanvas(canvas){
-      canvas.style.width = '100%'; canvas.style.height = '180px';
-      function resize(){ 
-        const ratio = Math.max(window.devicePixelRatio || 1, 1); 
-        const w = canvas.offsetWidth; 
-        const h = canvas.offsetHeight; 
-        canvas.width = Math.round(w * ratio); 
-        canvas.height = Math.round(h * ratio); 
-        canvas.style.width = w + 'px'; 
-        canvas.style.height = h + 'px'; 
-        const ctx = canvas.getContext('2d'); 
-        ctx.lineCap='round'; ctx.lineJoin='round'; ctx.lineWidth=2*ratio; ctx.strokeStyle='#0B1220'; 
-      }
-      resize(); 
-      window.addEventListener('resize', resize);
-      const ctx = canvas.getContext('2d'); 
-      let drawing=false; 
-      let last={x:0,y:0};
-      function pos(e){ 
-        const r=canvas.getBoundingClientRect(); 
-        if(e.touches && e.touches.length) return {x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top}; 
-        return {x: e.clientX - r.left, y: e.clientY - r.top}; 
-      }
-      function down(e){ e.preventDefault(); drawing=true; last=pos(e); }
-      function move(e){ if(!drawing) return; e.preventDefault(); const p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; }
-      function up(){ drawing=false; }
-      canvas.addEventListener('mousedown', down); 
-      canvas.addEventListener('mousemove', move); 
-      window.addEventListener('mouseup', up);
-      canvas.addEventListener('touchstart', down); 
-      canvas.addEventListener('touchmove', move); 
-      window.addEventListener('touchend', up);
-    }
-
-    function getBlankDataUrl(canvas){ 
-      const blank = document.createElement('canvas'); 
-      blank.width = canvas.width; 
-      blank.height = canvas.height; 
-      return blank.toDataURL('image/png'); 
-    }
-
-    function generateInvoicePage({payment, signature, employee, invoiceCart, tip, finalTotal}){
-      const vat7 = invoiceCart.filter(i=>i.vat===7).reduce((s,i)=>s + (i.price*i.qty - (i.price*i.qty)/1.07),0);
-      const vat19 = invoiceCart.filter(i=>i.vat===19).reduce((s,i)=>s + (i.price*i.qty - (i.price*i.qty)/1.19),0);
-      const total = invoiceCart.reduce((s,i)=>s + i.price*i.qty,0);
-      const received = (payment && payment.received) ? payment.received : total;
-      const change = received - total;
-      const method = (payment && payment.method) ? payment.method : '—';
-      const company = 'Surf Club GmbH';
-      
+    function printInvoice(data) {
       const now = new Date();
-      const day = String(now.getDate()).padStart(2, '0');
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const year = now.getFullYear();
-      const dateStr = `${day}.${month}.${year}`;
-      const betragStr = finalTotal.toFixed(2).replace('.', ',');
-      const filename = `Rechnung_${dateStr}_${betragStr}€`;
+      const d = String(now.getDate()).padStart(2, '0');
+      const m = String(now.getMonth()+1).padStart(2, '0');
+      const y = now.getFullYear();
+      const fname = `Rechnung_${d}.${m}.${y}_${(data.tot).toFixed(2).replace('.', ',')}€`;
       
-      const itemsHtml = invoiceCart.map(i=>`<tr><td>${escapeHtml(i.name)}</td><td style="text-align:center">${i.qty}</td><td style="text-align:right">${formatMoney(i.price)}</td><td style="text-align:right">${formatMoney(i.price*i.qty)}</td></tr>`).join('');
-      const html = `
-        <html><head><meta charset='utf-8'><title>${filename}</title><style>body{font-family:Arial,Helvetica,sans-serif;padding:18px;color:#0b1220}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #eee;text-align:left}th{background:#f5f5f5;font-weight:bold}header{display:flex;justify-content:space-between;margin-bottom:20px}h3{margin:16px 0 8px 0}h4{margin:12px 0 8px 0}.amount{font-weight:bold;font-size:1.2em;margin:12px 0}</style></head><body>
-        <header><div><strong>${company}</strong><div>Adresse</div></div><div><strong>Rechnung</strong><div>${now.toLocaleString('de-DE')}</div></div></header>
-        <h3>Produkte</h3>
-        <table><thead><tr><th>Produkt</th><th style="text-align:center">Menge</th><th style="text-align:right">Einzelpreis</th><th style="text-align:right">Summe</th></tr></thead><tbody>${itemsHtml}</tbody></table>
-        <div style='margin-top:12px'><div>MwSt. 7%: ${formatMoney(vat7)}</div><div>MwSt. 19%: ${formatMoney(vat19)}</div></div>
-        <div class='amount'>Gesamt: ${formatMoney(total)}</div>
-        <div>Zahlungsart: ${escapeHtml(method)}</div>
-        ${tip > 0 ? `<div><strong>TIP: ${formatMoney(tip)}</strong></div>` : ''}
-        <div class='amount'>Gesamtbetrag: ${formatMoney(finalTotal)}</div>
-        ${method === 'Barzahlung' ? `<div>Erhalten: ${formatMoney(received)}</div><div>Rückgeld: ${formatMoney(change)}</div>` : ''}
-        <h4>Unterschrift</h4>
-        <div><img src='${signature}' style='max-width:320px;border:1px solid #eee'></div>
-        <footer style='margin-top:18px;color:#666'>Bedient von: ${escapeHtml(employee)} — ${company}</footer>
-        <script>window.onload = function(){ document.title = '${filename}'; setTimeout(function(){ window.print(); },120); };<\/script>
-        </body></html>`;
-      const w = window.open('','_blank');
-      if(!w){ alert('Popup blockiert'); return; }
-      w.document.open(); w.document.write(html); w.document.close();
+      const v7 = data.items.filter(i => i.vat === 7).reduce((s, i) => s + (i.price*i.qty - (i.price*i.qty)/1.07), 0);
+      const v19 = data.items.filter(i => i.vat === 19).reduce((s, i) => s + (i.price*i.qty - (i.price*i.qty)/1.19), 0);
+      const tot = data.items.reduce((s, i) => s + i.price*i.qty, 0);
+      
+      const itemsHtml = data.items.map(i => `<tr><td>${i.name}</td><td style="text-align:center">${i.qty}</td><td style="text-align:right">${fmt(i.price)}</td><td style="text-align:right">${fmt(i.price*i.qty)}</td></tr>`).join('');
+      
+      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${fname}</title><style>
+        body{font-family:Arial,sans-serif;padding:20px;color:#0b1220}
+        table{width:100%;border-collapse:collapse;margin:20px 0}
+        td,th{padding:8px;border-bottom:1px solid #ddd;text-align:left}
+        th{background:#f5f5f5;font-weight:bold}
+        .header{display:flex;justify-content:space-between;margin-bottom:20px}
+        .amount{font-weight:bold;font-size:1.2em;margin:10px 0}
+        img{max-width:300px;border:1px solid #ccc;margin:10px 0}
+        .footer{margin-top:20px;color:#666;font-size:0.9em}
+      </style></head><body>
+      <div class="header"><div><strong>Surf Club GmbH</strong><div>Adresse</div></div><div><strong>Rechnung</strong><div>${now.toLocaleString('de-DE')}</div></div></div>
+      <h3>Produkte</h3>
+      <table><thead><tr><th>Produkt</th><th style="text-align:center">Menge</th><th style="text-align:right">Einzelpreis</th><th style="text-align:right">Summe</th></tr></thead><tbody>${itemsHtml}</tbody></table>
+      <div style="margin:10px 0"><div>MwSt. 7%: ${fmt(v7)}</div><div>MwSt. 19%: ${fmt(v19)}</div></div>
+      <div class="amount">Gesamt: ${fmt(tot)}</div>
+      <div>Zahlungsart: ${data.pay.met}</div>
+      ${data.tip > 0 ? `<div><strong>TIP: ${fmt(data.tip)}</strong></div>` : ''}
+      <div class="amount">Gesamtbetrag: ${fmt(data.tot)}</div>
+      ${data.pay.met === 'Barzahlung' ? `<div>Erhalten: ${fmt(data.pay.rec)}</div><div>Rückgeld: ${fmt(Math.max(0, data.pay.rec - tot))}</div>` : ''}
+      <h4>Unterschrift</h4>
+      <img src="${data.sig}">
+      <div class="footer">Bedient von: ${data.emp} — Surf Club GmbH</div>
+      <script>window.onload=()=>setTimeout(()=>window.print(),100)<\/script>
+      </body></html>`;
+      
+      const w = window.open('', '_blank');
+      if (!w) { alert('Popup blockiert'); return; }
+      w.document.write(html);
+      w.document.close();
     }
 
-    function escapeHtml(s){ return String(s).replace(/[&<>"]+/g, function(match){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[match]; }); }
-
-    // --- Event hooks ---
-    document.getElementById('clear-order').addEventListener('click', clearOrder);
-    document.getElementById('pay-card').addEventListener('click', openCardPayment);
-    document.getElementById('pay-cash').addEventListener('click', openCashPayment);
-    document.getElementById('book-table').addEventListener('click', ()=>{
-      if(cart.length===0){ alert('Produkte wählen'); return; }
-      openTableBooking();
+    // Events
+    document.getElementById('clear-order').addEventListener('click', () => {
+      if (confirm('Bon leeren?')) { cart = []; renderCart(); }
     });
+    document.getElementById('pay-cash').addEventListener('click', showCashPayment);
+    document.getElementById('pay-card').addEventListener('click', showCardPayment);
+    document.getElementById('book-table').addEventListener('click', showTableBooking);
 
-    // --- Start ---
-    renderCategories(); renderProducts(data.categories[0]); renderCart(); document.getElementById('year').textContent = new Date().getFullYear();
+    // Init
+    renderCats();
+    renderProds(data.categories[0]);
+    renderCart();
+    document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
